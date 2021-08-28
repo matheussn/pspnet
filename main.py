@@ -4,21 +4,20 @@ import uuid
 from glob import glob
 
 import numpy as np
-from keras.layers import Conv2D
-from keras.layers import Conv2DTranspose
-from keras.layers import Dense
-from keras.layers import Dropout
-from keras.layers import Flatten
-from keras.layers import LeakyReLU
-from keras.layers import Reshape
-from keras.models import Sequential
-from keras.optimizer_v2.adam import Adam
-from keras_preprocessing.image import load_img
 from matplotlib import pyplot
-from numpy import ones
-from numpy import zeros
-from numpy.random import randint
-from numpy.random import randn
+from numpy import ones, zeros
+from numpy.random import randint, randn
+from tensorflow.core.protobuf.config_pb2 import ConfigProto
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Conv2D, LeakyReLU, Dropout, Flatten, Dense, Conv2DTranspose, Reshape
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.preprocessing.image import load_img
+from tensorflow.python import Session
+from tensorflow.python.keras.backend import set_session
+
+config = ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.6
+set_session(Session(config=config))
 
 BASE_DIR = f"exec_{uuid.uuid1()}"
 
@@ -60,19 +59,16 @@ def define_generator(latent_dim):
     model.add(Dense(n_nodes, input_dim=latent_dim))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Reshape((4, 4, 256)))
-    # upsample to 8x8
     model.add(Conv2DTranspose(128, (4, 4), strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
-    # upsample to 16x16
     model.add(Conv2DTranspose(128, (4, 4), strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
-    # upsample to 32x32
     model.add(Conv2DTranspose(128, (4, 4), strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
 
     model.add(Conv2DTranspose(128, (4, 4), strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
-    # output layer
+
     model.add(Conv2D(3, (3, 3), activation='tanh', padding='same'))
     return model
 
@@ -172,7 +168,6 @@ def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, n_sample
     _, acc_fake = d_model.evaluate(x_fake, y_fake, verbose=0)
     # summarize discriminator performance
     print('>Accuracy real: %.0f%%, fake: %.0f%%' % (acc_real * 100, acc_fake * 100), file=LOG_FILE)
-    print('>Accuracy real: %.0f%%, fake: %.0f%%' % (acc_real * 100, acc_fake * 100))
     # save plot
     save_plot(x_fake, epoch)
     # save the generator model tile file
