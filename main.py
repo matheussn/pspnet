@@ -12,7 +12,7 @@ from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Conv2D, LeakyReLU, Dropout, Flatten, Dense, Conv2DTranspose, Reshape
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.preprocessing.image import load_img
-from tensorflow.python import Session
+from tensorflow.python.client.session import Session
 from tensorflow.python.keras.backend import set_session
 
 config = ConfigProto()

@@ -1,6 +1,8 @@
-import tensorflow
+import tensorflow as tf
 
-print(f"Tensorflow: {tensorflow.__version__}")
-print(f"Keras: {tensorflow.keras.__version__}")
+print(f"Tensorflow: {tf.__version__}")
+print(f"Keras: {tf.keras.__version__}")
 
-print(f"Devices: {tensorflow.config.list_physical_devices()}")
+print(f"Devices: {tf.config.list_physical_devices()}")
+
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
