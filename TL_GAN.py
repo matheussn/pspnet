@@ -1,8 +1,9 @@
 import argparse
+import os
+import uuid
 from glob import glob
 
 import numpy as np
-import tensorflow
 from matplotlib import pyplot
 from numpy import ones
 from numpy import zeros
@@ -17,10 +18,10 @@ from tensorflow.python.keras.optimizer_v2.adam import Adam
 
 from utils.gpu import set_gpu_limit
 
-LOG_FILE = open('logs.txt', 'a')
+BASE_DIR = f"exec_{uuid.uuid1()}"
 
-print(f"Tensorflow: {tensorflow.__version__}")
-print(f"Keras: {tensorflow.keras.__version__}")
+os.mkdir(BASE_DIR)
+LOG_FILE = open(f'{BASE_DIR}/logs.txt', 'a')
 
 
 def get_discriminator(input_size=(250, 450, 3)):
@@ -160,7 +161,7 @@ def save_plot(examples, epoch, n=7):
         # plot raw pixel data
         pyplot.imshow(examples[i])
     # save plot to file
-    filename = 'generated_plot_e%03d.png' % (epoch + 1)
+    filename = f'{BASE_DIR}/generated_plot_e%03d.png' % (epoch + 1)
     pyplot.savefig(filename)
     pyplot.close()
 
@@ -177,11 +178,10 @@ def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, n_sample
     _, acc_fake = d_model.evaluate(x_fake, y_fake, verbose=0)
     # summarize discriminator performance
     print('>Accuracy real: %.0f%%, fake: %.0f%%' % (acc_real * 100, acc_fake * 100), file=LOG_FILE)
-    print('>Accuracy real: %.0f%%, fake: %.0f%%' % (acc_real * 100, acc_fake * 100))
     # save plot
     save_plot(x_fake, epoch)
     # save the generator model tile file
-    filename = 'generator_model_%03d.h5' % (epoch + 1)
+    filename = f'{BASE_DIR}/generator_model_%03d.h5' % (epoch + 1)
     g_model.save(filename)
 
 
