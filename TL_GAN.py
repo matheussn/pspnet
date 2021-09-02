@@ -55,25 +55,21 @@ def get_generator(input_dim=100):
     model.add(BatchNormalization())
     model.add(LeakyReLU())
     model.add(Reshape((4, 4, 1024)))
-    model.add(
-        Conv2DTranspose(512, (2, 2), strides=(2, 2), activation='relu', padding='same', kernel_initializer='he_normal'))
+    model.add(Conv2DTranspose(512, (2, 2), strides=(2, 2), padding='same', kernel_initializer='he_normal'))
     model.add(LeakyReLU(alpha=0.2))
     model.add(BatchNormalization())
-    model.add(
-        Conv2DTranspose(256, (2, 2), strides=(2, 2), activation='relu', padding='same', kernel_initializer='he_normal'))
+    model.add(Conv2DTranspose(256, (2, 2), strides=(2, 2), padding='same', kernel_initializer='he_normal'))
     model.add(LeakyReLU(alpha=0.2))
     model.add(BatchNormalization())
-    model.add(
-        Conv2DTranspose(128, (2, 2), strides=(2, 2), activation='relu', padding='same', kernel_initializer='he_normal'))
+    model.add(Conv2DTranspose(128, (2, 2), strides=(2, 2), padding='same', kernel_initializer='he_normal'))
     model.add(LeakyReLU(alpha=0.2))
     model.add(BatchNormalization())
-    model.add(
-        Conv2DTranspose(64, (2, 2), strides=(2, 2), activation='relu', padding='same', kernel_initializer='he_normal'))
+    model.add(Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same', kernel_initializer='he_normal'))
     model.add(LeakyReLU(alpha=0.2))
     model.add(BatchNormalization())
-    model.add(Conv2D(3, 3, activation='relu', padding='same', kernel_initializer='he_normal'))
+    model.add(Conv2D(3, 3, activation='tanh', padding='same', kernel_initializer='he_normal'))
     # model.add(Resizing(height=250, width=450))
-    model.compile(optimizer=Adam(learning_rate=3e-4), loss='binary_crossentropy', metrics=['accuracy'])
+    # model.compile(optimizer=Adam(learning_rate=3e-4), loss='binary_crossentropy', metrics=['accuracy'])
 
     return model
 
@@ -216,7 +212,6 @@ if __name__ == '__main__':
                           metrics=['accuracy'])
 
     gan = get_gan(discriminator, generator)
-    gan.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=2e-4, beta_1=0.05))
 
     dataset = load_real_samples(args.dataset_path, target_size=(64, 64))
     train(generator, discriminator, gan, dataset, latent_dim)
