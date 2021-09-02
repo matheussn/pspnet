@@ -10,8 +10,7 @@ from numpy import zeros
 from numpy.random import randint
 from numpy.random import randn
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, BatchNormalization, \
-    LeakyReLU, Reshape, Flatten, Conv2DTranspose
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, LeakyReLU, Reshape, Flatten, UpSampling2D
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.preprocessing.image import load_img
 
@@ -50,22 +49,35 @@ def get_discriminator(input_size=(250, 450, 3)):
 
 def get_generator(input_dim=100):
     model = Sequential()
+
     model.add(Dense(4 * 4 * 1024, input_dim=input_dim, use_bias=False))
-    model.add(BatchNormalization())
     model.add(LeakyReLU())
     model.add(Reshape((4, 4, 1024)))
-    model.add(Conv2DTranspose(512, (2, 2), strides=(2, 2), padding='same'))
-    model.add(BatchNormalization())
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Conv2DTranspose(256, (2, 2), strides=(2, 2), padding='same'))
-    model.add(BatchNormalization())
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Conv2DTranspose(128, (2, 2), strides=(2, 2), padding='same'))
-    model.add(BatchNormalization())
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same'))
-    model.add(BatchNormalization())
-    model.add(LeakyReLU(alpha=0.2))
+
+    model.add(Conv2D(1024, 3, activation='relu', padding='same'))
+    model.add(UpSampling2D(size=(2, 2)))
+    model.add(Conv2D(512, 2, activation='relu', padding='same'))
+
+    model.add(Conv2D(512, 3, activation='relu', padding='same'))
+
+    model.add(Conv2D(512, 3, activation='relu', padding='same'))
+    model.add(UpSampling2D(size=(2, 2)))
+    model.add(Conv2D(256, 2, activation='relu', padding='same'))
+
+    model.add(Conv2D(256, 3, activation='relu', padding='same'))
+
+    model.add(Conv2D(256, 3, activation='relu', padding='same'))
+    model.add(UpSampling2D(size=(2, 2)))
+    model.add(Conv2D(128, 2, activation='relu', padding='same'))
+
+    model.add(Conv2D(128, 3, activation='relu', padding='same'))
+
+    model.add(Conv2D(128, 3, activation='relu', padding='same'))
+    model.add(UpSampling2D(size=(2, 2)))
+    model.add(Conv2D(64, 2, activation='relu', padding='same'))
+
+    model.add(Conv2D(64, 3, activation='relu', padding='same'))
+    model.add(Conv2D(64, 3, activation='relu', padding='same'))
     model.add(Conv2D(3, 3, activation='tanh', padding='same'))
     # model.add(Resizing(height=250, width=450))
     # model.compile(optimizer=Adam(learning_rate=3e-4), loss='binary_crossentropy', metrics=['accuracy'])
@@ -191,7 +203,7 @@ def train(g_model, d_model, gan_model, dataset, latent_dim, n_epochs=200, n_batc
             g_loss = gan_model.train_on_batch(X_gan, y_gan)
             # summarize loss on this batch
             print('>%d, %d/%d, d1=%.5f, d2=%.5f g=%.5f' %
-                  (i + 1, j + 1, bat_per_epo, d_loss1, d_loss2, g_loss), file=LOG_FILE)
+                  (i + 1, j + 1, bat_per_epo, d_loss1, d_loss2, g_loss))  # , file=LOG_FILE)
         # evaluate the model performance, sometimes
         if (i + 1) % 10 == 0:
             summarize_performance(i, g_model, d_model, dataset, latent_dim)
