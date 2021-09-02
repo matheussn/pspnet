@@ -52,7 +52,7 @@ def define_discriminator(in_shape=(64, 64, 3)):
 
 
 # define the standalone generator model
-def define_generator(latent_dim):
+def define_generator(latent_dim=100):
     model = Sequential()
     # foundation for 4x4 image
     n_nodes = 256 * 4 * 4
@@ -63,10 +63,9 @@ def define_generator(latent_dim):
     model.add(LeakyReLU(alpha=0.2))
     model.add(Conv2DTranspose(128, (4, 4), strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Conv2DTranspose(128, (4, 4), strides=(2, 2), padding='same'))
+    model.add(Conv2DTranspose(64, (4, 4), strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
-
-    model.add(Conv2DTranspose(128, (4, 4), strides=(2, 2), padding='same'))
+    model.add(Conv2DTranspose(64, (4, 4), strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
 
     model.add(Conv2D(3, (3, 3), activation='tanh', padding='same'))
@@ -74,23 +73,21 @@ def define_generator(latent_dim):
 
 
 # define the combined generator and discriminator model, for updating the generator
-def define_gan(g_model, d_model):
+def define_gan(generator, discriminator):
     # make weights in the discriminator not trainable
-    d_model.trainable = False
+    discriminator.trainable = False
     # connect them
     model = Sequential()
     # add generator
-    model.add(g_model)
+    model.add(generator)
     # add the discriminator
-    model.add(d_model)
+    model.add(discriminator)
     # compile model
-    # lr default = 0.0002
     opt = Adam(learning_rate=3e-4, beta_1=0.05)
     model.compile(loss='binary_crossentropy', optimizer=opt)
     return model
 
 
-# load and prepare cifar10 training images
 def load_real_samples(path: str):
     images_glob = glob(f'{path}*')
 
@@ -99,12 +96,12 @@ def load_real_samples(path: str):
         img = np.array(load_img(path=img_path, color_mode='rgb', target_size=(64, 64)))
         train_images.append(img)
 
-    trainX = np.asarray(train_images)
+    train_x = np.asarray(train_images)
     # convert from unsigned ints to floats
-    X = trainX.astype('float32')
+    x = train_x.astype('float32')
     # scale from [0,255] to [-1,1]
-    X = (X - 127.5) / 127.5
-    return X
+    x = (x - 127.5) / 127.5
+    return x
 
 
 # select real samples
@@ -176,7 +173,7 @@ def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, n_sample
 
 
 # train the generator and discriminator
-def train(g_model, d_model, gan_model, dataset, latent_dim, n_epochs=200, n_batch=128):
+def train(g_model, d_model, gan_model, dataset, latent_dim=100, n_epochs=200, n_batch=128):
     bat_per_epo = int(dataset.shape[0] / 8)
     half_batch = int(n_batch / 2)
     # manually enumerate epochs
@@ -213,14 +210,13 @@ if __name__ == '__main__':
 
     print(args.dataset_path)
     # size of the latent space
-    latent_dim = 100
     # create the discriminator
     d_model = define_discriminator()
     # create the generator
-    g_model = define_generator(latent_dim)
+    g_model = define_generator()
     # create the gan
     gan_model = define_gan(g_model, d_model)
     # load image data
     dataset = load_real_samples(args.dataset_path)
     # train model
-    train(g_model, d_model, gan_model, dataset, latent_dim)
+    train(g_model, d_model, gan_model, dataset)
