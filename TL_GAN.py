@@ -26,24 +26,23 @@ LOG_FILE = open(f'{BASE_DIR}/logs.txt', 'a')
 def get_discriminator(input_size=(250, 450, 3)):
     model = Sequential()
 
-    model.add(Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal', input_shape=input_size,
-                     name="conv_2d_1"))
-    model.add(Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal', name="conv_2d_2"))
+    model.add(Conv2D(64, 3, activation='relu', padding='same', input_shape=input_size, name="conv_2d_1"))
+    model.add(Conv2D(64, 3, activation='relu', padding='same', name="conv_2d_2"))
     model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_1"))
 
-    model.add(Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal', name="conv_2d_3"))
-    model.add(Conv2D(128, 3, activation='relu', padding='same', kernel_initializer='he_normal', name="conv_2d_4"))
+    model.add(Conv2D(128, 3, activation='relu', padding='same', name="conv_2d_3"))
+    model.add(Conv2D(128, 3, activation='relu', padding='same', name="conv_2d_4"))
     model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_2"))
 
-    model.add(Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal', name="conv_2d_5"))
-    model.add(Conv2D(256, 3, activation='relu', padding='same', kernel_initializer='he_normal', name="conv_2d_6"))
+    model.add(Conv2D(256, 3, activation='relu', padding='same', name="conv_2d_5"))
+    model.add(Conv2D(256, 3, activation='relu', padding='same', name="conv_2d_6"))
     model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_3"))
 
-    model.add(Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal', name="conv_2d_7"))
-    model.add(Conv2D(512, 3, activation='relu', padding='same', kernel_initializer='he_normal', name="conv_2d_8"))
+    model.add(Conv2D(512, 3, activation='relu', padding='same', name="conv_2d_7"))
+    model.add(Conv2D(512, 3, activation='relu', padding='same', name="conv_2d_8"))
     model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_4"))
 
-    model.add(Conv2D(1024, 3, activation='relu', padding='same', kernel_initializer='he_normal', name="conv_2d_9"))
+    model.add(Conv2D(1024, 3, activation='relu', padding='same', name="conv_2d_9"))
     model.add(Flatten())
     model.add(Dense(1))
     return model
@@ -55,19 +54,19 @@ def get_generator(input_dim=100):
     model.add(BatchNormalization())
     model.add(LeakyReLU())
     model.add(Reshape((4, 4, 1024)))
-    model.add(Conv2DTranspose(512, (2, 2), strides=(2, 2), padding='same', kernel_initializer='he_normal'))
-    model.add(LeakyReLU(alpha=0.2))
+    model.add(Conv2DTranspose(512, (2, 2), strides=(2, 2), padding='same'))
     model.add(BatchNormalization())
-    model.add(Conv2DTranspose(256, (2, 2), strides=(2, 2), padding='same', kernel_initializer='he_normal'))
     model.add(LeakyReLU(alpha=0.2))
+    model.add(Conv2DTranspose(256, (2, 2), strides=(2, 2), padding='same'))
     model.add(BatchNormalization())
-    model.add(Conv2DTranspose(128, (2, 2), strides=(2, 2), padding='same', kernel_initializer='he_normal'))
     model.add(LeakyReLU(alpha=0.2))
+    model.add(Conv2DTranspose(128, (2, 2), strides=(2, 2), padding='same'))
     model.add(BatchNormalization())
-    model.add(Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same', kernel_initializer='he_normal'))
     model.add(LeakyReLU(alpha=0.2))
+    model.add(Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same'))
     model.add(BatchNormalization())
-    model.add(Conv2D(3, 3, activation='tanh', padding='same', kernel_initializer='he_normal'))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Conv2D(3, 3, activation='tanh', padding='same'))
     # model.add(Resizing(height=250, width=450))
     # model.compile(optimizer=Adam(learning_rate=3e-4), loss='binary_crossentropy', metrics=['accuracy'])
 
@@ -76,10 +75,10 @@ def get_generator(input_dim=100):
 
 def get_gan(disc, gen):
     disc.trainable = False
-    model = Sequential(name="generator")
+    model = Sequential(name="gan")
     model.add(gen)
     model.add(disc)
-    opt = Adam(learning_rate=2e-4, beta_1=0.05)
+    opt = Adam(learning_rate=3e-4, beta_1=0.05)
     model.compile(loss='binary_crossentropy', optimizer=opt)
     return model
 
@@ -170,7 +169,7 @@ def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, n_sample
 
 # train the generator and discriminator
 def train(g_model, d_model, gan_model, dataset, latent_dim, n_epochs=200, n_batch=128):
-    bat_per_epo = int(dataset.shape[0] / 2)
+    bat_per_epo = int(dataset.shape[0] / 8)
     half_batch = int(n_batch / 2)
     # manually enumerate epochs
     for i in range(n_epochs):
@@ -191,7 +190,7 @@ def train(g_model, d_model, gan_model, dataset, latent_dim, n_epochs=200, n_batc
             # update the generator via the discriminator's error
             g_loss = gan_model.train_on_batch(X_gan, y_gan)
             # summarize loss on this batch
-            print('>%d, %d/%d, d1=%.3f, d2=%.3f g=%.3f' %
+            print('>%d, %d/%d, d1=%.5f, d2=%.5f g=%.5f' %
                   (i + 1, j + 1, bat_per_epo, d_loss1, d_loss2, g_loss), file=LOG_FILE)
         # evaluate the model performance, sometimes
         if (i + 1) % 10 == 0:
@@ -208,7 +207,7 @@ if __name__ == '__main__':
     generator = get_generator()
     discriminator = get_discriminator(input_size=(64, 64, 3))
     # test add , decay=1e-8
-    discriminator.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=1e-3, beta_1=0.5),
+    discriminator.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=2e-4, beta_1=0.05),
                           metrics=['accuracy'])
 
     gan = get_gan(discriminator, generator)
