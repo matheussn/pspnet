@@ -14,7 +14,7 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, UpSampling2D, Concaten
     LeakyReLU, Reshape, Flatten
 from tensorflow.keras.layers.experimental.preprocessing import Resizing
 from tensorflow.keras.preprocessing.image import load_img
-from tensorflow.python.keras.optimizer_v2.adam import Adam
+from tensorflow.keras.optimizers import Adam
 
 from utils.gpu import set_gpu_limit
 
