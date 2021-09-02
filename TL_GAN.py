@@ -217,6 +217,5 @@ if __name__ == '__main__':
     gan = get_gan(discriminator, generator)
     gan.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=2e-4, beta_1=0.05))
 
-    # dataset = load_real_samples(args.dataset_path)
-    # train(generator, discriminator, gan, dataset, latent_dim)
-    generator.summary()
+    dataset = load_real_samples(args.dataset_path)
+    train(generator, discriminator, gan, dataset, latent_dim)
