@@ -8,7 +8,8 @@ from numpy import zeros
 from numpy.random import randint
 from numpy.random import randn
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, LeakyReLU, Reshape, Flatten, UpSampling2D
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, LeakyReLU, Reshape, Flatten, Conv2DTranspose, \
+    Activation, BatchNormalization
 from tensorflow.keras.optimizers import Adam
 
 from utils.dataset import load_real_samples, load_dataset, input_img_size
@@ -49,34 +50,26 @@ def get_generator(input_dim=100):
     model = Sequential()
 
     model.add(Dense(16 * 16 * 1024, input_dim=input_dim, use_bias=False))
-    model.add(LeakyReLU())
     model.add(Reshape((16, 16, 1024)))
 
-    model.add(Conv2D(1024, 3, activation='relu', padding='same'))
-    model.add(UpSampling2D(size=(2, 2)))
-    model.add(Conv2D(512, 2, activation='relu', padding='same'))
+    model.add(Conv2DTranspose(1024, kernel_size=3, strides=2, padding='same'))
+    model.add(BatchNormalization())
+    model.add(LeakyReLU(alpha=0.01))
 
-    model.add(Conv2D(512, 3, activation='relu', padding='same'))
+    model.add(Conv2DTranspose(512, kernel_size=3, strides=2, padding='same'))
+    model.add(BatchNormalization())
+    model.add(LeakyReLU(alpha=0.01))
 
-    model.add(Conv2D(512, 3, activation='relu', padding='same'))
-    model.add(UpSampling2D(size=(2, 2)))
-    model.add(Conv2D(256, 2, activation='relu', padding='same'))
+    model.add(Conv2DTranspose(128, kernel_size=3, strides=2, padding='same'))
+    model.add(BatchNormalization())
+    model.add(LeakyReLU(alpha=0.01))
 
-    model.add(Conv2D(256, 3, activation='relu', padding='same'))
+    model.add(Conv2DTranspose(64, kernel_size=3, strides=2, padding='same'))
+    model.add(BatchNormalization())
+    model.add(LeakyReLU(alpha=0.01))
 
-    model.add(Conv2D(256, 3, activation='relu', padding='same'))
-    model.add(UpSampling2D(size=(2, 2)))
-    model.add(Conv2D(128, 2, activation='relu', padding='same'))
-
-    model.add(Conv2D(128, 3, activation='relu', padding='same'))
-
-    model.add(Conv2D(128, 3, activation='relu', padding='same'))
-    model.add(UpSampling2D(size=(2, 2)))
-    model.add(Conv2D(64, 2, activation='relu', padding='same'))
-
-    model.add(Conv2D(64, 3, activation='relu', padding='same'))
-    model.add(Conv2D(64, 3, activation='relu', padding='same'))
-    model.add(Conv2D(3, 3, activation='tanh', padding='same'))
+    model.add(Conv2DTranspose(3, kernel_size=3, strides=1, padding='same'))
+    model.add(Activation('tanh'))
     # model.add(Resizing(height=250, width=450))
     # model.compile(optimizer=Adam(learning_rate=3e-4), loss='binary_crossentropy', metrics=['accuracy'])
 
