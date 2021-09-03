@@ -49,18 +49,14 @@ def get_discriminator(input_size=(250, 450, 3)):
 def get_generator(input_dim=100):
     model = Sequential()
 
-    model.add(Dense(16 * 16 * 1024, input_dim=input_dim, use_bias=False))
-    model.add(Reshape((16, 16, 1024)))
-
-    model.add(Conv2DTranspose(1024, kernel_size=3, strides=2, padding='same'))
-    model.add(BatchNormalization())
-    model.add(LeakyReLU(alpha=0.01))
+    model.add(Dense(16 * 16 * 512, input_dim=input_dim, use_bias=False))
+    model.add(Reshape((16, 16, 512)))
 
     model.add(Conv2DTranspose(512, kernel_size=3, strides=2, padding='same'))
     model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.01))
 
-    model.add(Conv2DTranspose(128, kernel_size=3, strides=2, padding='same'))
+    model.add(Conv2DTranspose(128, kernel_size=3, strides=4, padding='same'))
     model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.01))
 
@@ -206,6 +202,6 @@ if __name__ == '__main__':
         dataset = load_dataset(args.dataset_name)
 
     # print(dataset)
-    train(generator, discriminator, gan, dataset, latent_dim)
-    # generator.summary()
-    # discriminator.summary()
+    # train(generator, discriminator, gan, dataset, latent_dim)
+    generator.summary()
+    discriminator.summary()
