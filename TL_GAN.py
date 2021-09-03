@@ -1,9 +1,7 @@
 import argparse
 import os
 import uuid
-from glob import glob
 
-import numpy as np
 from matplotlib import pyplot
 from numpy import ones
 from numpy import zeros
@@ -12,8 +10,8 @@ from numpy.random import randn
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, LeakyReLU, Reshape, Flatten, UpSampling2D
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.preprocessing.image import load_img
 
+from utils.dataset import load_real_samples, load_dataset, input_img_size
 from utils.gpu import set_gpu_limit
 
 BASE_DIR = f"exec_{uuid.uuid1()}"
@@ -50,9 +48,9 @@ def get_discriminator(input_size=(250, 450, 3)):
 def get_generator(input_dim=100):
     model = Sequential()
 
-    model.add(Dense(4 * 4 * 1024, input_dim=input_dim, use_bias=False))
+    model.add(Dense(16 * 16 * 1024, input_dim=input_dim, use_bias=False))
     model.add(LeakyReLU())
-    model.add(Reshape((4, 4, 1024)))
+    model.add(Reshape((16, 16, 1024)))
 
     model.add(Conv2D(1024, 3, activation='relu', padding='same'))
     model.add(UpSampling2D(size=(2, 2)))
@@ -93,22 +91,6 @@ def get_gan(disc, gen):
     opt = Adam(learning_rate=3e-4, beta_1=0.05)
     model.compile(loss='binary_crossentropy', optimizer=opt)
     return model
-
-
-def load_real_samples(path: str, target_size: tuple):
-    images_glob = glob(f'{path}*')
-
-    train_images = []
-    for img_path in images_glob:
-        img = np.array(load_img(path=img_path, color_mode='rgb', target_size=target_size))
-        train_images.append(img)
-
-    trainX = np.asarray(train_images)
-    # convert from unsigned ints to floats
-    dataset = trainX.astype('float32')
-    # scale from [0,255] to [-1,1]
-    dataset = (dataset - 127.5) / 127.5
-    return dataset
 
 
 # select real samples
@@ -181,7 +163,7 @@ def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, n_sample
 
 # train the generator and discriminator
 def train(g_model, d_model, gan_model, dataset, latent_dim, n_epochs=200, n_batch=128):
-    bat_per_epo = int(dataset.shape[0] / 8)
+    bat_per_epo = int(dataset.shape[0] / 4)
     half_batch = int(n_batch / 2)
     # manually enumerate epochs
     for i in range(n_epochs):
@@ -212,19 +194,25 @@ def train(g_model, d_model, gan_model, dataset, latent_dim, n_epochs=200, n_batc
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-d', dest='dataset_path', help='path of dataset', required=True)
+    parser.add_argument('-d', dest='dataset_path', help='path of dataset', default=False)
+    parser.add_argument('-tfds', dest='dataset_name', help='Name of tensorflow dataset', default=False)
     args = parser.parse_args()
     set_gpu_limit()
     latent_dim = 100
     generator = get_generator()
-    discriminator = get_discriminator(input_size=(64, 64, 3))
+    discriminator = get_discriminator(input_size=input_img_size)
     # test add , decay=1e-8
     discriminator.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=2e-4, beta_1=0.05),
                           metrics=['accuracy'])
 
     gan = get_gan(discriminator, generator)
 
-    dataset = load_real_samples(args.dataset_path, target_size=(64, 64))
+    if type(args.dataset_path) is not bool:
+        dataset = load_real_samples(args.dataset_path, target_size=(64, 64))
+    else:
+        dataset = load_dataset(args.dataset_name)
+
+    # print(dataset)
     train(generator, discriminator, gan, dataset, latent_dim)
     # generator.summary()
     # discriminator.summary()
