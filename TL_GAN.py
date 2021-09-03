@@ -174,7 +174,7 @@ def train(g_model, d_model, gan_model, dataset, latent_dim, n_epochs=200, n_batc
             g_loss = gan_model.train_on_batch(X_gan, y_gan)
             # summarize loss on this batch
             print('>%d, %d/%d, d1=%.5f, d2=%.5f g=%.5f' %
-                  (i + 1, j + 1, bat_per_epo, d_loss1, d_loss2, g_loss))  # , file=LOG_FILE)
+                  (i + 1, j + 1, bat_per_epo, d_loss1, d_loss2, g_loss), file=LOG_FILE)
         # evaluate the model performance, sometimes
         if (i + 1) % 10 == 0:
             summarize_performance(i, g_model, d_model, dataset, latent_dim)
