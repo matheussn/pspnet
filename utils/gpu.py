@@ -5,5 +5,5 @@ from tensorflow.python.keras.backend import set_session
 
 def set_gpu_limit():
     config = ConfigProto()
-    config.gpu_options.per_process_gpu_memory_fraction = 0.6
+    config.gpu_options.per_process_gpu_memory_fraction = 0.7
     set_session(Session(config=config))
