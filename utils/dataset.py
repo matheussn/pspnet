@@ -9,7 +9,7 @@ tfds.disable_progress_bar()
 auto_tune = tf.data.AUTOTUNE
 
 orig_img_size = (286, 286)
-input_img_size = (256, 256, 3)
+input_img_size = (64, 64, 3)
 
 buffer_size = 286
 batch_size = 8
