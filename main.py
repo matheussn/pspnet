@@ -1,9 +1,7 @@
 import argparse
 import os
 import uuid
-from glob import glob
 
-import numpy as np
 from matplotlib import pyplot
 from numpy import ones, zeros
 from numpy.random import randint, randn
@@ -11,9 +9,10 @@ from tensorflow.core.protobuf.config_pb2 import ConfigProto
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Conv2D, LeakyReLU, Dropout, Flatten, Dense, Conv2DTranspose, Reshape
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.preprocessing.image import load_img
 from tensorflow.python.client.session import Session
 from tensorflow.python.keras.backend import set_session
+
+from utils.dataset import load_dataset, load_real_samples
 
 config = ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.6
@@ -59,16 +58,16 @@ def define_generator(latent_dim=100):
     model.add(Dense(n_nodes, input_dim=latent_dim))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Reshape((4, 4, 256)))
-    model.add(Conv2DTranspose(128, (4, 4), strides=(2, 2), padding='same'))
+    model.add(Conv2DTranspose(256, 3, strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Conv2DTranspose(128, (4, 4), strides=(2, 2), padding='same'))
+    model.add(Conv2DTranspose(128, 3, strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Conv2DTranspose(64, (4, 4), strides=(2, 2), padding='same'))
+    model.add(Conv2DTranspose(128, 3, strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Conv2DTranspose(64, (4, 4), strides=(2, 2), padding='same'))
+    model.add(Conv2DTranspose(64, 3, strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
 
-    model.add(Conv2D(3, (3, 3), activation='tanh', padding='same'))
+    model.add(Conv2D(3, 3, activation='tanh', padding='same'))
     return model
 
 
@@ -86,22 +85,6 @@ def define_gan(generator, discriminator):
     opt = Adam(learning_rate=3e-4, beta_1=0.05)
     model.compile(loss='binary_crossentropy', optimizer=opt)
     return model
-
-
-def load_real_samples(path: str):
-    images_glob = glob(f'{path}*')
-
-    train_images = []
-    for img_path in images_glob:
-        img = np.array(load_img(path=img_path, color_mode='rgb', target_size=(64, 64)))
-        train_images.append(img)
-
-    train_x = np.asarray(train_images)
-    # convert from unsigned ints to floats
-    x = train_x.astype('float32')
-    # scale from [0,255] to [-1,1]
-    x = (x - 127.5) / 127.5
-    return x
 
 
 # select real samples
@@ -205,7 +188,8 @@ def train(g_model, d_model, gan_model, dataset, latent_dim=100, n_epochs=200, n_
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-d', dest='dataset_path', help='path of dataset', required=True)
+    parser.add_argument('-d', dest='dataset_path', help='path of dataset', default=False)
+    parser.add_argument('-tfds', dest='dataset_name', help='Name of tensorflow dataset', default=False)
     args = parser.parse_args()
 
     print(args.dataset_path)
@@ -217,6 +201,9 @@ if __name__ == '__main__':
     # create the gan
     gan_model = define_gan(g_model, d_model)
     # load image data
-    dataset = load_real_samples(args.dataset_path)
+    if type(args.dataset_path) is not bool:
+        dataset = load_real_samples(args.dataset_path, target_size=(64, 64))
+    else:
+        dataset = load_dataset(args.dataset_name)
     # train model
     train(g_model, d_model, gan_model, dataset)

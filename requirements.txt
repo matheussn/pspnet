@@ -2,3 +2,4 @@ matplotlib>=3.4.2
 Keras~=2.6.0
 tensorflow-gpu~=2.6.0
 numpy~=1.19.5
+tensorflow-datasets~=4.4.0
