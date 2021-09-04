@@ -107,3 +107,6 @@ def train(g_model, d_model, gan_model, dataset, base_dir, latent_dim=100, n_epoc
             # Save losses and accuracies so they can be plotted after training
             Metrics().add_g_loss(g_loss)
             summarize_performance(epoch, g_model, d_model, dataset, latent_dim, base_dir)
+
+    Metrics().plot_accuracy(base_dir)
+    Metrics().plot_losses(base_dir)
