@@ -5,21 +5,27 @@ import gdown
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow import keras
+from tensorflow.core.protobuf.config_pb2 import ConfigProto
 from tensorflow.keras import layers
+from tensorflow.python.client.session import Session
+from tensorflow.python.keras.backend import set_session
 
 """
 ## Prepare CelebA data
 We'll use face images from the CelebA dataset, resized to 64x64.
 """
+config = ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.6
+set_session(Session(config=config))
 
-os.makedirs("celeba_gan")
-
-url = "https://drive.google.com/uc?id=1O7m1010EJjLE5QxLZiM9Fpjs7Oj6e684"
-output = "celeba_gan/data.zip"
-gdown.download(url, output, quiet=True)
-
-with ZipFile("celeba_gan/data.zip", "r") as zipobj:
-    zipobj.extractall("celeba_gan")
+# os.makedirs("celeba_gan")
+#
+# url = "https://drive.google.com/uc?id=1O7m1010EJjLE5QxLZiM9Fpjs7Oj6e684"
+# output = "celeba_gan/data.zip"
+# gdown.download(url, output, quiet=True)
+#
+# with ZipFile("celeba_gan/data.zip", "r") as zipobj:
+#     zipobj.extractall("celeba_gan")
 
 """
 Create a dataset from our folder, and rescale the images to the [0-1] range:
