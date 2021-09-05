@@ -8,11 +8,10 @@ from numpy import zeros
 from numpy.random import randint
 from numpy.random import randn
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, LeakyReLU, Reshape, Flatten, Conv2DTranspose, \
-    Activation, BatchNormalization
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, Reshape, Flatten, Conv2DTranspose
 from tensorflow.keras.optimizers import Adam
 
-from utils.dataset import load_real_samples, load_dataset, input_img_size
+from utils.dataset import input_img_size, load_real_samples, load_dataset
 from utils.gpu import set_gpu_limit
 
 BASE_DIR = f"exec_{uuid.uuid1()}"
@@ -22,7 +21,7 @@ LOG_FILE = open(f'{BASE_DIR}/logs.txt', 'a')
 
 
 def get_discriminator(input_size=(250, 450, 3)):
-    model = Sequential()
+    model = Sequential(name="Discriminator")
 
     model.add(Conv2D(64, 3, activation='relu', padding='same', input_shape=input_size, name="conv_2d_1"))
     model.add(Conv2D(64, 3, activation='relu', padding='same', name="conv_2d_2"))
@@ -42,30 +41,33 @@ def get_discriminator(input_size=(250, 450, 3)):
 
     model.add(Conv2D(1024, 3, activation='relu', padding='same', name="conv_2d_9"))
     model.add(Flatten())
-    model.add(Dense(1))
+    model.add(Dense(1, activation="sigmoid"))
     return model
 
 
 def get_generator(input_dim=100):
-    model = Sequential()
+    model = Sequential(name="Generator")
 
-    model.add(Dense(8 * 8 * 512, input_dim=input_dim, use_bias=False))
-    model.add(Reshape((8, 8, 512)))
+    model.add(Dense(4 * 4 * 512, input_dim=input_dim, use_bias=False))
+    model.add(Reshape((4, 4, 512)))
 
-    model.add(Conv2DTranspose(512, kernel_size=3, strides=2, padding='same'))
-    model.add(BatchNormalization())
-    model.add(LeakyReLU(alpha=0.01))
+    model.add(Conv2DTranspose(64, 3, strides=2, activation='relu', padding='same', name="conv_2d_1"))
+    model.add(Conv2DTranspose(64, 3, strides=2, activation='relu', padding='same', name="conv_2d_2"))
+    model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_1"))
 
-    model.add(Conv2DTranspose(128, kernel_size=3, strides=2, padding='same'))
-    model.add(BatchNormalization())
-    model.add(LeakyReLU(alpha=0.01))
+    model.add(Conv2DTranspose(128, 3, strides=2, activation='relu', padding='same', name="conv_2d_3"))
+    model.add(Conv2DTranspose(128, 3, strides=2, activation='relu', padding='same', name="conv_2d_4"))
+    model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_2"))
 
-    model.add(Conv2DTranspose(64, kernel_size=3, strides=2, padding='same'))
-    model.add(BatchNormalization())
-    model.add(LeakyReLU(alpha=0.01))
+    model.add(Conv2DTranspose(256, 3, strides=2, activation='relu', padding='same', name="conv_2d_5"))
+    model.add(Conv2DTranspose(256, 3, strides=2, activation='relu', padding='same', name="conv_2d_6"))
+    model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_3"))
 
-    model.add(Conv2DTranspose(3, kernel_size=3, strides=1, padding='same'))
-    model.add(Activation('tanh'))
+    model.add(Conv2DTranspose(512, 3, strides=2, activation='relu', padding='same', name="conv_2d_7"))
+    model.add(Conv2DTranspose(512, 3, strides=2, activation='relu', padding='same', name="conv_2d_8"))
+    model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_4"))
+
+    model.add(Conv2D(3, kernel_size=5, padding="same", activation="sigmoid"))
     # model.add(Resizing(height=250, width=450))
     # model.compile(optimizer=Adam(learning_rate=3e-4), loss='binary_crossentropy', metrics=['accuracy'])
 
@@ -196,12 +198,13 @@ if __name__ == '__main__':
 
     gan = get_gan(discriminator, generator)
 
+    # generator.summary()
+    # discriminator.summary()
+    # gan.summary()
+
     if type(args.dataset_path) is not bool:
         dataset = load_real_samples(args.dataset_path, target_size=(64, 64))
     else:
         dataset = load_dataset(args.dataset_name)
 
-    # print(dataset)
     train(generator, discriminator, gan, dataset, latent_dim)
-    # generator.summary()
-    # discriminator.summary()
