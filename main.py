@@ -42,7 +42,7 @@ def define_discriminator(in_shape=(64, 64, 3)):
     model.add(Dropout(0.4))
     model.add(Dense(1, activation='sigmoid'))
     # compile model
-    opt = Adam(learning_rate=1e-3, beta_1=0.5)
+    opt = Adam(learning_rate=1e-3, beta_1=0.05)
     model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
     return model
 
@@ -79,7 +79,7 @@ def define_gan(generator, discriminator):
     # add the discriminator
     model.add(discriminator)
     # compile model
-    opt = Adam(learning_rate=3e-4, beta_1=0.05)
+    opt = Adam(learning_rate=2e-4, beta_1=0.05)
     model.compile(loss='binary_crossentropy', optimizer=opt)
     return model
 

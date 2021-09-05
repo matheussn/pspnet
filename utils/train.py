@@ -77,7 +77,7 @@ def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, base_dir
     g_model.save(filename)
 
 
-def train(g_model, d_model, gan_model, dataset, base_dir, latent_dim=100, n_epochs=200, n_batch=8):
+def train(g_model, d_model, gan_model, dataset, base_dir, latent_dim=100, n_epochs=300, n_batch=8):
     bat_per_epo = int(dataset.shape[0] / n_batch)
     half_batch = int(n_batch / 2)
     # manually enumerate epochs
