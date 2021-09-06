@@ -1,8 +1,9 @@
 import numpy as np
 from matplotlib import pyplot
 from numpy.random import randint, randn
+from tensorflow import keras
 
-from utils.metrics import Metrics
+from utils.metrics_util import Metrics
 
 LOG_FILE = 0
 
@@ -52,9 +53,24 @@ def save_plot(examples, epoch, base_dir, n=7):
     pyplot.close()
 
 
+def save_plot2(examples, epoch, base_dir, n=7):
+    for i in range(n * n):
+        # define subplot
+        pyplot.subplot(n, n, 1 + i)
+        # turn off axis
+        pyplot.axis('off')
+        # plot raw pixel data
+        img = keras.preprocessing.image.array_to_img(examples[i])
+        pyplot.imshow(img)
+    # save plot to file
+    filename = f'{base_dir}/generated_plot_e%03d.png' % (epoch + 1)
+    pyplot.savefig(filename)
+    pyplot.close()
+
+
 def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, base_dir, n_samples=150):
     # prepare real samples
-    x_real, y_real = generate_real_samples(dataset, n_samples)
+    x_real, y_real = dataset.take(n_samples), np.ones((n_samples, 1))  # generate_real_samples(dataset, n_samples)
     # evaluate discriminator on real examples
     loss_real, acc_real = d_model.evaluate(x_real, y_real, verbose=0)
     # prepare fake examples
