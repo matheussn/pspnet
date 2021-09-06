@@ -3,7 +3,7 @@ from tensorflow import keras
 from tensorflow.core.protobuf.config_pb2 import ConfigProto
 from tensorflow.keras import layers
 from tensorflow.keras.losses import BinaryCrossentropy
-from tensorflow.keras.metrics import Mean, BinaryAccuracy
+from tensorflow.keras.metrics import Mean, BinaryAccuracy, Accuracy
 from tensorflow.python.client.session import Session
 from tensorflow.python.keras.backend import set_session
 
@@ -134,7 +134,7 @@ class GAN(keras.Model):
             [tf.ones((batch_size, 1)), tf.zeros((batch_size, 1))], axis=0
         )
         # Add random noise to the labels - important trick!
-        labels += 0.05 * tf.random.uniform(tf.shape(labels))
+        # labels += 0.05 * tf.random.uniform(tf.shape(labels))
 
         # Train the discriminator
         with tf.GradientTape() as tape:
@@ -218,6 +218,7 @@ Metrics().add_g_loss(history.history['g_loss'])
 Metrics().add_d_loss(history.history['d_loss'])
 Metrics().add_fake_accuracy(history.history['d_acc_f'])
 Metrics().add_real_accuracy(history.history['d_acc_r'])
+Metrics().add_test_accuracy(history.history['d_acc_t'])
 Metrics().epoch = [x for x in range(len(history.history["d_loss"]))]
 Metrics().plot_losses('exec')
 Metrics().plot_accuracy('exec')
