@@ -3,7 +3,7 @@ from tensorflow import keras
 from tensorflow.core.protobuf.config_pb2 import ConfigProto
 from tensorflow.keras import layers
 from tensorflow.keras.losses import BinaryCrossentropy
-from tensorflow.keras.metrics import Mean, BinaryAccuracy, Accuracy
+from tensorflow.keras.metrics import Mean, BinaryAccuracy
 from tensorflow.python.client.session import Session
 from tensorflow.python.keras.backend import set_session
 
@@ -53,11 +53,11 @@ It maps a 64x64 image to a binary classification score.
 discriminator = keras.Sequential(
     [
         keras.Input(shape=(64, 64, 3)),
-        layers.Conv2D(64, kernel_size=4, strides=2, padding="same"),
+        layers.Conv2D(64, kernel_size=3, strides=2, padding="same"),
         layers.LeakyReLU(alpha=0.2),
-        layers.Conv2D(128, kernel_size=4, strides=2, padding="same"),
+        layers.Conv2D(128, kernel_size=3, strides=2, padding="same"),
         layers.LeakyReLU(alpha=0.2),
-        layers.Conv2D(128, kernel_size=4, strides=2, padding="same"),
+        layers.Conv2D(128, kernel_size=3, strides=2, padding="same"),
         layers.LeakyReLU(alpha=0.2),
         layers.Flatten(),
         layers.Dropout(0.2),
@@ -79,13 +79,13 @@ generator = keras.Sequential(
         keras.Input(shape=(latent_dim,)),
         layers.Dense(8 * 8 * 128),
         layers.Reshape((8, 8, 128)),
-        layers.Conv2DTranspose(128, kernel_size=4, strides=2, padding="same"),
+        layers.Conv2DTranspose(128, kernel_size=3, strides=2, padding="same"),
         layers.LeakyReLU(alpha=0.2),
-        layers.Conv2DTranspose(256, kernel_size=4, strides=2, padding="same"),
+        layers.Conv2DTranspose(256, kernel_size=3, strides=2, padding="same"),
         layers.LeakyReLU(alpha=0.2),
-        layers.Conv2DTranspose(512, kernel_size=4, strides=2, padding="same"),
+        layers.Conv2DTranspose(512, kernel_size=3, strides=2, padding="same"),
         layers.LeakyReLU(alpha=0.2),
-        layers.Conv2D(3, kernel_size=5, padding="same", activation="sigmoid"),
+        layers.Conv2D(3, kernel_size=3, padding="same", activation="tanh"),
     ],
     name="generator",
 )
@@ -207,8 +207,8 @@ epochs = 300  # In practice, use ~100 epochs
 
 gan = GAN(discriminator=discriminator, generator=generator, latent_dim=latent_dim)
 gan.compile(
-    d_optimizer=keras.optimizers.Adam(learning_rate=0.0001),
-    g_optimizer=keras.optimizers.Adam(learning_rate=2e-4),
+    d_optimizer=keras.optimizers.Adam(learning_rate=1e-3),
+    g_optimizer=keras.optimizers.Adam(learning_rate=2e-4, beta_1=0.05),
     loss_fn=BinaryCrossentropy()
 )
 
@@ -222,9 +222,3 @@ Metrics().add_test_accuracy(history.history['d_acc_t'])
 Metrics().epoch = [x for x in range(len(history.history["d_loss"]))]
 Metrics().plot_losses('exec')
 Metrics().plot_accuracy('exec')
-
-"""
-Some of the last generated images around epoch 30
-(results keep improving after that):
-![results](https://i.imgur.com/h5MtQZ7l.png)
-"""
