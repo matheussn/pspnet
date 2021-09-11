@@ -89,6 +89,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-d', dest='dataset_path', help='path of dataset', default=False)
     parser.add_argument('-tfds', dest='dataset_name', help='Name of tensorflow dataset', default=False)
+    parser.add_argument('-e', dest='epochs', help='Number of epochs', default=300)
     args = parser.parse_args()
 
     # size of the latent space
@@ -104,4 +105,4 @@ if __name__ == '__main__':
     else:
         dataset = load_dataset(args.dataset_name)
     # train model
-    train(g_model, d_model, gan_model, dataset, BASE_DIR)
+    train(g_model, d_model, gan_model, dataset, BASE_DIR, n_epochs=int(args.epochs))

@@ -59,8 +59,10 @@ discriminator = keras.Sequential(
         layers.LeakyReLU(alpha=0.2),
         layers.Conv2D(128, kernel_size=3, strides=2, padding="same"),
         layers.LeakyReLU(alpha=0.2),
+        layers.Conv2D(256, (3, 3), strides=(2, 2), padding='same'),
+        layers.LeakyReLU(alpha=0.2),
         layers.Flatten(),
-        layers.Dropout(0.2),
+        layers.Dropout(0.4),
         layers.Dense(1, activation="sigmoid"),
     ],
     name="discriminator",
@@ -77,13 +79,15 @@ latent_dim = 128
 generator = keras.Sequential(
     [
         keras.Input(shape=(latent_dim,)),
-        layers.Dense(8 * 8 * 128),
-        layers.Reshape((8, 8, 128)),
-        layers.Conv2DTranspose(128, kernel_size=3, strides=2, padding="same"),
+        layers.Dense(4 * 4 * 256),
+        layers.Reshape((4, 4, 256)),
+        layers.Conv2DTranspose(256, kernel_size=3, strides=2, padding="same"),
         layers.LeakyReLU(alpha=0.2),
         layers.Conv2DTranspose(256, kernel_size=3, strides=2, padding="same"),
         layers.LeakyReLU(alpha=0.2),
         layers.Conv2DTranspose(512, kernel_size=3, strides=2, padding="same"),
+        layers.LeakyReLU(alpha=0.2),
+        layers.Conv2DTranspose(512, 3, strides=2, padding='same'),
         layers.LeakyReLU(alpha=0.2),
         layers.Conv2D(3, kernel_size=3, padding="same", activation="tanh"),
     ],
@@ -203,11 +207,11 @@ class GANMonitor(keras.callbacks.Callback):
 ## Train the end-to-end model
 """
 
-epochs = 300  # In practice, use ~100 epochs
+epochs = 2000  # In practice, use ~100 epochs
 
 gan = GAN(discriminator=discriminator, generator=generator, latent_dim=latent_dim)
 gan.compile(
-    d_optimizer=keras.optimizers.Adam(learning_rate=1e-3),
+    d_optimizer=keras.optimizers.Adam(learning_rate=1e-3, beta_1=0.05),
     g_optimizer=keras.optimizers.Adam(learning_rate=2e-4, beta_1=0.05),
     loss_fn=BinaryCrossentropy()
 )

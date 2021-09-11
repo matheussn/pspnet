@@ -70,7 +70,7 @@ def save_plot2(examples, epoch, base_dir, n=7):
 
 def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, base_dir, n_samples=150):
     # prepare real samples
-    x_real, y_real = dataset.take(n_samples), np.ones((n_samples, 1))  # generate_real_samples(dataset, n_samples)
+    x_real, y_real = generate_real_samples(dataset, n_samples)  #  dataset.take(n_samples), np.ones((n_samples, 1))
     # evaluate discriminator on real examples
     loss_real, acc_real = d_model.evaluate(x_real, y_real, verbose=0)
     # prepare fake examples
@@ -86,10 +86,12 @@ def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, base_dir
     save_plot(x_fake, epoch, base_dir)
 
     Metrics().add_d_loss(d_loss[0])
-    Metrics().add_accuracy(d_loss[1])
+    Metrics().add_real_accuracy_one(acc_real)
+    Metrics().add_fake_accuracy_one(acc_fake)
+    Metrics().add_test_accuracy_one(d_loss[1])
     Metrics().add_epoch(epoch + 1)
     # save the generator model tile file
-    filename = f'{base_dir}/generator_model_%03d.h5' % (epoch + 1)
+    filename = f'{base_dir}/generator_model_%04d.h5' % (epoch + 1)
     g_model.save(filename)
 
 

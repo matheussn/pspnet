@@ -32,11 +32,20 @@ class Metrics(metaclass=SingletonMeta):
     def add_real_accuracy(self, acc):
         self.accuracies_real.append([100 * x for x in acc])
 
+    def add_real_accuracy_one(self, acc):
+        self.accuracies_real.append(100 * acc)
+
     def add_test_accuracy(self, acc):
         self.accuracies_test.append([100 * x for x in acc])
 
+    def add_test_accuracy_one(self, acc):
+        self.accuracies_test.append(100 * acc)
+
     def add_fake_accuracy(self, acc):
         self.accuracies_fake.append([100 * x for x in acc])
+
+    def add_fake_accuracy_one(self, acc):
+        self.accuracies_fake.append(100 * acc)
 
     def add_d_loss(self, d_loss):
         self.d_losses.append(d_loss)
@@ -49,8 +58,8 @@ class Metrics(metaclass=SingletonMeta):
 
     def plot_losses(self, base_dir):
         plt.figure(figsize=(15, 5))
-        plt.plot(self.epoch, self.d_losses[0], label="Discriminator loss")
-        plt.plot(self.epoch, self.g_losses[0], label="Generator loss")
+        plt.plot(self.epoch, self.d_losses, label="Discriminator loss")
+        plt.plot(self.epoch, self.g_losses, label="Generator loss")
 
         plt.xticks(self.epoch, rotation=90)
 
@@ -62,9 +71,9 @@ class Metrics(metaclass=SingletonMeta):
 
     def plot_accuracy(self, base_dir):
         plt.figure(figsize=(15, 5))
-        plt.plot(self.epoch, self.accuracies_fake[0], label="Discriminator accuracy (Fake)")
-        plt.plot(self.epoch, self.accuracies_real[0], label="Discriminator accuracy (Real)")
-        plt.plot(self.epoch, self.accuracies_test[0], label="Discriminator accuracy (test)")
+        plt.plot(self.epoch, self.accuracies_fake, label="Discriminator accuracy (Fake)")
+        plt.plot(self.epoch, self.accuracies_real, label="Discriminator accuracy (Real)")
+        plt.plot(self.epoch, self.accuracies_test, label="Discriminator accuracy (test)")
 
         plt.xticks(self.epoch, rotation=90)
         plt.yticks(range(0, 100, 5))
