@@ -27,7 +27,7 @@ def define_discriminator(in_shape=(64, 64, 3)):
     # normal
     model.add(Conv2D(64, (3, 3), padding='same', input_shape=in_shape))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Dropout(0.4))
+    # model.add(Dropout(0.4))
     # downsample
     model.add(Conv2D(128, (3, 3), strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
