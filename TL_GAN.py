@@ -8,7 +8,7 @@ from numpy import zeros
 from numpy.random import randint
 from numpy.random import randn
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, Reshape, Flatten, Conv2DTranspose
+from tensorflow.keras.layers import Conv2D, Dense, Reshape, Flatten, Conv2DTranspose, LeakyReLU, MaxPooling2D
 from tensorflow.keras.optimizers import Adam
 
 from utils.dataset import input_img_size, load_real_samples, load_dataset
@@ -46,28 +46,45 @@ def get_discriminator(input_size=(250, 450, 3)):
 
 
 def get_generator(input_dim=100):
-    model = Sequential(name="Generator")
-
-    model.add(Dense(4 * 4 * 512, input_dim=input_dim, use_bias=False))
+    model = Sequential()
+    # foundation for 4x4 image
+    n_nodes = 4 * 4 * 512
+    model.add(Dense(n_nodes, input_dim=latent_dim))
+    model.add(LeakyReLU(alpha=0.2))
     model.add(Reshape((4, 4, 512)))
+    model.add(Conv2DTranspose(256, 3, strides=(2, 2), padding='same'))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Conv2DTranspose(128, 3, strides=(2, 2), padding='same'))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Conv2DTranspose(128, 3, strides=(2, 2), padding='same'))
+    model.add(LeakyReLU(alpha=0.2))
+    model.add(Conv2DTranspose(64, 3, strides=(2, 2), padding='same'))
+    model.add(LeakyReLU(alpha=0.2))
 
-    model.add(Conv2DTranspose(64, 3, strides=2, activation='relu', padding='same', name="conv_2d_1"))
-    model.add(Conv2DTranspose(64, 3, strides=2, activation='relu', padding='same', name="conv_2d_2"))
-    model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_1"))
-
-    model.add(Conv2DTranspose(128, 3, strides=2, activation='relu', padding='same', name="conv_2d_3"))
-    model.add(Conv2DTranspose(128, 3, strides=2, activation='relu', padding='same', name="conv_2d_4"))
-    model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_2"))
-
-    model.add(Conv2DTranspose(256, 3, strides=2, activation='relu', padding='same', name="conv_2d_5"))
-    model.add(Conv2DTranspose(256, 3, strides=2, activation='relu', padding='same', name="conv_2d_6"))
-    model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_3"))
-
-    model.add(Conv2DTranspose(512, 3, strides=2, activation='relu', padding='same', name="conv_2d_7"))
-    model.add(Conv2DTranspose(512, 3, strides=2, activation='relu', padding='same', name="conv_2d_8"))
-    model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_4"))
-
-    model.add(Conv2D(3, kernel_size=5, padding="same", activation="sigmoid"))
+    model.add(Conv2D(3, 3, activation='tanh', padding='same'))
+    # return model
+    # model = Sequential(name="Generator")
+    #
+    # model.add(Dense(4 * 4 * 512, input_dim=input_dim, use_bias=False))
+    # model.add(Reshape((4, 4, 512)))
+    #
+    # model.add(Conv2DTranspose(64, 3, strides=2, activation='relu', padding='same', name="conv_2d_1"))
+    # model.add(Conv2DTranspose(64, 3, strides=2, activation='relu', padding='same', name="conv_2d_2"))
+    # model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_1"))
+    #
+    # model.add(Conv2DTranspose(128, 3, strides=2, activation='relu', padding='same', name="conv_2d_3"))
+    # model.add(Conv2DTranspose(128, 3, strides=2, activation='relu', padding='same', name="conv_2d_4"))
+    # model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_2"))
+    #
+    # model.add(Conv2DTranspose(256, 3, strides=2, activation='relu', padding='same', name="conv_2d_5"))
+    # model.add(Conv2DTranspose(256, 3, strides=2, activation='relu', padding='same', name="conv_2d_6"))
+    # model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_3"))
+    #
+    # model.add(Conv2DTranspose(512, 3, strides=2, activation='relu', padding='same', name="conv_2d_7"))
+    # model.add(Conv2DTranspose(512, 3, strides=2, activation='relu', padding='same', name="conv_2d_8"))
+    # model.add(MaxPooling2D(pool_size=(2, 2), name="max_pooling_2d_4"))
+    #
+    # model.add(Conv2D(3, kernel_size=5, padding="same", activation="sigmoid"))
     # model.add(Resizing(height=250, width=450))
     # model.compile(optimizer=Adam(learning_rate=3e-4), loss='binary_crossentropy', metrics=['accuracy'])
 
@@ -148,12 +165,12 @@ def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, n_sample
     # save plot
     save_plot(x_fake, epoch)
     # save the generator model tile file
-    filename = f'{BASE_DIR}/generator_model_%03d.h5' % (epoch + 1)
-    g_model.save(filename)
+    filename = f'{BASE_DIR}/discriminator_model_%03d.h5' % (epoch + 1)
+    d_model.save(filename)
 
 
 # train the generator and discriminator
-def train(g_model, d_model, gan_model, dataset, latent_dim, n_epochs=200, n_batch=128):
+def train(g_model, d_model, gan_model, dataset, latent_dim, n_epochs=20, n_batch=128):
     bat_per_epo = int(dataset.shape[0] / 4)
     half_batch = int(n_batch / 2)
     # manually enumerate epochs
