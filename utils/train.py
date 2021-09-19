@@ -125,8 +125,8 @@ def train(g_model, d_model, gan_model, dataset, base_dir, latent_dim=100, n_epoc
             #           (epoch + 1, j + 1, bat_per_epo, d_loss_fake, d_loss_real, g_loss), file=log)
             # if (epoch + 1) % 10 == 0:
             # Save losses and accuracies so they can be plotted after training
-            Metrics().add_g_loss(g_loss)
-            summarize_performance(epoch, g_model, d_model, dataset, latent_dim, base_dir)
+        Metrics().add_g_loss(g_loss)
+        summarize_performance(epoch, g_model, d_model, dataset, latent_dim, base_dir)
 
     Metrics().plot_accuracy(base_dir, n_epochs)
     Metrics().plot_losses(base_dir, n_epochs)
