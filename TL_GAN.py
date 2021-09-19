@@ -49,7 +49,7 @@ def get_generator(input_dim=100):
     model = Sequential()
     # foundation for 4x4 image
     n_nodes = 4 * 4 * 512
-    model.add(Dense(n_nodes, input_dim=latent_dim))
+    model.add(Dense(n_nodes, input_dim=input_dim))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Reshape((4, 4, 512)))
     model.add(Conv2DTranspose(256, 3, strides=(2, 2), padding='same'))
