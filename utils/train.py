@@ -80,8 +80,8 @@ def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, base_dir
     # summarize discriminator performance
     d_loss = 0.5 * np.add([loss_real, acc_real], [loss_fake, acc_fake])
     with open(f'{base_dir}/logs.txt', 'a') as log:
-        print('>[%d] Accuracy real: %.0f%%, fake: %.0f%%, acc.: %.0f%%' %
-              (epoch, acc_real * 100, acc_fake * 100, 100 * d_loss[1]),
+        print('>[%d] Accuracy real: %.0f%%, fake: %.0f%%, acc.: %.0f%%, loss: %.0f%%' %
+              (epoch, acc_real * 100, acc_fake * 100, 100 * d_loss[1], 100 * d_loss[0]),
               file=log)
     # save plot
     if (epoch + 1) % 10 == 0:
