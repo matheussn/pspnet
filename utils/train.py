@@ -70,7 +70,7 @@ def save_plot2(examples, epoch, base_dir, n=7):
 
 def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, base_dir, n_samples=150):
     # prepare real samples
-    x_real, y_real = generate_real_samples(dataset, n_samples)  #  dataset.take(n_samples), np.ones((n_samples, 1))
+    x_real, y_real = generate_real_samples(dataset, n_samples)  # dataset.take(n_samples), np.ones((n_samples, 1))
     # evaluate discriminator on real examples
     loss_real, acc_real = d_model.evaluate(x_real, y_real, verbose=0)
     # prepare fake examples
@@ -80,10 +80,12 @@ def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, base_dir
     # summarize discriminator performance
     d_loss = 0.5 * np.add([loss_real, acc_real], [loss_fake, acc_fake])
     with open(f'{base_dir}/logs.txt', 'a') as log:
-        print('>Accuracy real: %.0f%%, fake: %.0f%%, acc.: %.0f%%' % (acc_real * 100, acc_fake * 100, 100 * d_loss[1]),
+        print('>[%d] Accuracy real: %.0f%%, fake: %.0f%%, acc.: %.0f%%' %
+              (epoch, acc_real * 100, acc_fake * 100, 100 * d_loss[1]),
               file=log)
     # save plot
-    save_plot(x_fake, epoch, base_dir)
+    if (epoch + 1) % 10 == 0:
+        save_plot(x_fake, epoch, base_dir)
 
     Metrics().add_d_loss(d_loss[0])
     Metrics().add_real_accuracy_one(acc_real)
@@ -95,7 +97,7 @@ def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, base_dir
     g_model.save(filename)
 
 
-def train(g_model, d_model, gan_model, dataset, base_dir, latent_dim=100, n_epochs=300, n_batch=8):
+def train(g_model, d_model, gan_model, dataset, base_dir, latent_dim=100, n_epochs=300, n_batch=256):
     bat_per_epo = int(dataset.shape[0] / n_batch)
     half_batch = int(n_batch / 2)
     # manually enumerate epochs
@@ -116,15 +118,15 @@ def train(g_model, d_model, gan_model, dataset, base_dir, latent_dim=100, n_epoc
             # create inverted labels for the fake samples
             y_gan = np.ones((n_batch, 1))
             # update the generator via the discriminator's error
-            g_loss = gan_model.train_on_batch(x_gan, y_gan)
+            g_loss, _ = gan_model.train_on_batch(x_gan, y_gan)
             # summarize loss on this batch
-            with open(f'{base_dir}/logs.txt', 'a') as log:
-                print('>%d, %d/%d, d1=%.3f, d2=%.3f g=%.3f' %
-                      (epoch + 1, j + 1, bat_per_epo, d_loss_fake, d_loss_real, g_loss), file=log)
-        if (epoch + 1) % 10 == 0:
+            # with open(f'{base_dir}/logs.txt', 'a') as log:
+            #     print('>%d, %d/%d, d1=%.3f, d2=%.3f g=%.3f' %
+            #           (epoch + 1, j + 1, bat_per_epo, d_loss_fake, d_loss_real, g_loss), file=log)
+            # if (epoch + 1) % 10 == 0:
             # Save losses and accuracies so they can be plotted after training
             Metrics().add_g_loss(g_loss)
             summarize_performance(epoch, g_model, d_model, dataset, latent_dim, base_dir)
 
-    Metrics().plot_accuracy(base_dir)
-    Metrics().plot_losses(base_dir)
+    Metrics().plot_accuracy(base_dir, n_epochs)
+    Metrics().plot_losses(base_dir, n_epochs)

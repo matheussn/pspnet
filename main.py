@@ -4,7 +4,7 @@ import uuid
 
 from tensorflow.core.protobuf.config_pb2 import ConfigProto
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Conv2D, LeakyReLU, Dropout, Flatten, Dense, Conv2DTranspose, Reshape
+from tensorflow.keras.layers import Conv2D, LeakyReLU, Flatten, Dense, Conv2DTranspose, Reshape
 from tensorflow.keras.optimizers import Adam
 from tensorflow.python.client.session import Session
 from tensorflow.python.keras.backend import set_session
@@ -28,6 +28,8 @@ def define_discriminator(in_shape=(64, 64, 3)):
     model.add(Conv2D(64, (3, 3), padding='same', input_shape=in_shape))
     model.add(LeakyReLU(alpha=0.2))
     # model.add(Dropout(0.4))
+    model.add(Conv2D(128, (3, 3), padding='same'))
+    model.add(LeakyReLU(alpha=0.2))
     # downsample
     model.add(Conv2D(128, (3, 3), strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
@@ -39,7 +41,7 @@ def define_discriminator(in_shape=(64, 64, 3)):
     model.add(LeakyReLU(alpha=0.2))
     # classifier
     model.add(Flatten())
-    model.add(Dropout(0.4))
+    # model.add(Dropout(0.4))
     model.add(Dense(1, activation='sigmoid'))
     # compile model
     opt = Adam(learning_rate=1e-3, beta_1=0.05)
@@ -57,7 +59,7 @@ def define_generator(latent_dim=100):
     model.add(Reshape((4, 4, 256)))
     model.add(Conv2DTranspose(256, 3, strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
-    model.add(Conv2DTranspose(128, 3, strides=(2, 2), padding='same'))
+    model.add(Conv2DTranspose(256, 3, strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Conv2DTranspose(128, 3, strides=(2, 2), padding='same'))
     model.add(LeakyReLU(alpha=0.2))
@@ -80,7 +82,7 @@ def define_gan(generator, discriminator):
     model.add(discriminator)
     # compile model
     opt = Adam(learning_rate=2e-4, beta_1=0.05)
-    model.compile(loss='binary_crossentropy', optimizer=opt)
+    model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
     return model
 
 
