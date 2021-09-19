@@ -68,7 +68,7 @@ def save_plot2(examples, epoch, base_dir, n=7):
     pyplot.close()
 
 
-def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, base_dir, n_samples=150):
+def summarize_performance(epoch, g_model, d_model, dataset, latent_dim, base_dir, n_samples=256):
     # prepare real samples
     x_real, y_real = generate_real_samples(dataset, n_samples)  # dataset.take(n_samples), np.ones((n_samples, 1))
     # evaluate discriminator on real examples

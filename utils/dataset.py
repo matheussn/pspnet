@@ -69,3 +69,39 @@ def load_real_samples(path: str, target_size: tuple):
     # scale from [0,255] to [-1,1]
     dataset = (dataset - 127.5) / 127.5
     return dataset
+
+
+def load_real_samples_cgan(target_size: tuple):
+    images_glob = glob(f'./dataset/healthy_64x64/*')
+
+    train_images = []
+    train_class = []
+    for img_path in images_glob:
+        img = np.array(load_img(path=img_path, color_mode='rgb', target_size=target_size))
+        train_images.append(img)
+        train_class.append(0)
+
+    images_glob = glob(f'./dataset/mild_64x64/*')
+    for img_path in images_glob:
+        img = np.array(load_img(path=img_path, color_mode='rgb', target_size=target_size))
+        train_images.append(img)
+        train_class.append(1)
+
+    images_glob = glob(f'./dataset/moderate_64x64/*')
+    for img_path in images_glob:
+        img = np.array(load_img(path=img_path, color_mode='rgb', target_size=target_size))
+        train_images.append(img)
+        train_class.append(2)
+
+    images_glob = glob(f'./dataset/severe_64x64/*')
+    for img_path in images_glob:
+        img = np.array(load_img(path=img_path, color_mode='rgb', target_size=target_size))
+        train_images.append(img)
+        train_class.append(3)
+
+    train_x = np.asarray(train_images)
+    # convert from unsigned ints to floats
+    dataset = train_x.astype('float32')
+    # scale from [0,255] to [-1,1]
+    dataset = (dataset - 127.5) / 127.5
+    return dataset, np.asarray(train_class)
