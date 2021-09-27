@@ -75,27 +75,32 @@ def load_real_samples_cgan(target_size: tuple):
     images_glob = glob(f'./dataset/healthy_64x64/*')
 
     train_images = []
+    image_names = []
     train_class = []
     for img_path in images_glob:
         img = np.array(load_img(path=img_path, color_mode='rgb', target_size=target_size))
+        image_names.append("healthy")
         train_images.append(img)
         train_class.append(0)
 
     images_glob = glob(f'./dataset/mild_64x64/*')
     for img_path in images_glob:
         img = np.array(load_img(path=img_path, color_mode='rgb', target_size=target_size))
+        image_names.append("mild")
         train_images.append(img)
         train_class.append(1)
 
     images_glob = glob(f'./dataset/moderate_64x64/*')
     for img_path in images_glob:
         img = np.array(load_img(path=img_path, color_mode='rgb', target_size=target_size))
+        image_names.append("moderate")
         train_images.append(img)
         train_class.append(2)
 
     images_glob = glob(f'./dataset/severe_64x64/*')
     for img_path in images_glob:
         img = np.array(load_img(path=img_path, color_mode='rgb', target_size=target_size))
+        image_names.append("severe")
         train_images.append(img)
         train_class.append(3)
 

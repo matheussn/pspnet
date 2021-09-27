@@ -267,17 +267,14 @@ def sample_images(epoch, image_grid_rows=2, image_grid_columns=2):
     # gen_imgs = 0.5 * gen_imgs + 0.5
 
     # Set image grid
-    fig, axs = plt.subplots(image_grid_rows,
-                            image_grid_columns,
-                            figsize=(10, 4),
-                            sharey=True,
-                            sharex=True)
+    fig, axs = plt.subplots(image_grid_rows, image_grid_columns, )
 
     cnt = 0
     for i in range(image_grid_rows):
         for j in range(image_grid_columns):
             # Output a grid of images
-            axs[i, j].imshow(gen_imgs[cnt, :, :, 0])
+            img = (gen_imgs[cnt] + 1) / 2.0
+            axs[i, j].imshow(img)
             axs[i, j].axis('off')
             axs[i, j].set_title("Digit: %d" % labels[cnt])
             cnt += 1
