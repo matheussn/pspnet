@@ -1,15 +1,22 @@
 import numpy as np
 from matplotlib import pyplot as plt
+from tensorflow.core.protobuf.config_pb2 import ConfigProto
 from tensorflow.keras import Model, Input, Sequential
-from tensorflow.keras.layers import LeakyReLU, Flatten, Dense, Conv2DTranspose, Reshape, BatchNormalization, \
-    Activation, Multiply, Embedding, Conv2D, Concatenate
+from tensorflow.keras.layers import LeakyReLU, Flatten, Dense, Conv2DTranspose, Reshape, Activation, Multiply, \
+    Embedding, Conv2D, Concatenate
 from tensorflow.keras.optimizers import Adam
+from tensorflow.python.client.session import Session
+from tensorflow.python.keras.backend import set_session
 
 from utils.dataset import load_real_samples_cgan
 
+config = ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.6
+set_session(Session(config=config))
+
 
 def build_generator(z_dim):
-    model = Sequential()
+    model = Sequential(name="Generator")
 
     # Reshape input into 7x7x256 tensor via a fully connected layer
     model.add(Dense(256 * 4 * 4, input_dim=z_dim))
@@ -17,27 +24,27 @@ def build_generator(z_dim):
 
     # Transposed convolution layer, from 4x4x256 into 8x8x128 tensor
     model.add(Conv2DTranspose(128, kernel_size=3, strides=2, padding='same'))
-    model.add(BatchNormalization())
+    # model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.01))
 
     # Transposed convolution layer, from 8x8x128 to 8x8x64 tensor
     model.add(Conv2DTranspose(64, kernel_size=3, strides=1, padding='same'))
-    model.add(BatchNormalization())
+    # model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.01))
 
     # Transposed convolution layer, from 8x8x128 to 16x16x64 tensor
     model.add(Conv2DTranspose(64, kernel_size=3, strides=2, padding='same'))
-    model.add(BatchNormalization())
+    # model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.01))
 
     # Transposed convolution layer, from 16x16x128 to 32x32x64 tensor
     model.add(Conv2DTranspose(64, kernel_size=3, strides=2, padding='same'))
-    model.add(BatchNormalization())
+    # model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.01))
 
     # Transposed convolution layer, from 32x32x128 to 32x32x64 tensor
     model.add(Conv2DTranspose(64, kernel_size=3, strides=1, padding='same'))
-    model.add(BatchNormalization())
+    # model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.01))
 
     # Transposed convolution layer, from 32x32x64 to 64x64x3 tensor
@@ -74,7 +81,7 @@ def build_cgan_generator(z_dim, num_classes):
 
 
 def build_discriminator(img_shape):
-    model = Sequential()
+    model = Sequential(name="discriminator")
 
     # Convolutional layer, from 64x64x3 into 32x32x64 tensor
     model.add(Conv2D(64, kernel_size=3, strides=2, input_shape=(img_shape[0], img_shape[1], img_shape[2] + 3),
@@ -83,17 +90,17 @@ def build_discriminator(img_shape):
 
     # Convolutional layer, from 32x32x64 into 16x16x64 tensor
     model.add(Conv2D(64, kernel_size=3, strides=2, input_shape=img_shape, padding='same'))
-    model.add(BatchNormalization())
+    # model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.01))
 
     # Convolutional layer, from 16x16x64 tensor into 8x8x128 tensor
     model.add(Conv2D(128, kernel_size=3, strides=2, input_shape=img_shape, padding='same'))
-    model.add(BatchNormalization())
+    # model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.01))
 
     # Convolutional layer, from 8x8x64 tensor into 4x4x128 tensor
     model.add(Conv2D(128, kernel_size=3, strides=2, input_shape=img_shape, padding='same'))
-    model.add(BatchNormalization())
+    # model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.01))
 
     # Output layer with sigmoid activation
@@ -180,8 +187,9 @@ discriminator.trainable = False
 cgan = build_cgan(generator, discriminator, z_dim)
 cgan.compile(loss='binary_crossentropy', optimizer=Adam())
 
-discriminator.summary()
-discriminator.get_layer("sequential").summary()
+# discriminator.summary()
+# generator.get_layer("Generator").summary()
+# discriminator.get_layer("discriminator").summary()
 
 accuracies = []
 losses = []
@@ -245,18 +253,18 @@ def train(iterations, batch_size, sample_interval):
             sample_images(iteration)
 
 
-def sample_images(epoch, image_grid_rows=2, image_grid_columns=5):
+def sample_images(epoch, image_grid_rows=2, image_grid_columns=2):
     # Sample random noise
     z = np.random.normal(0, 1, (image_grid_rows * image_grid_columns, z_dim))
 
     # Get image labels 0-9
-    labels = np.arange(0, 10).reshape(-1, 1)
+    labels = np.arange(0, 4).reshape(-1, 1)
 
     # Generate images from random noise
     gen_imgs = generator.predict([z, labels])
 
     # Rescale image pixel values to [0, 1]
-    gen_imgs = 0.5 * gen_imgs + 0.5
+    # gen_imgs = 0.5 * gen_imgs + 0.5
 
     # Set image grid
     fig, axs = plt.subplots(image_grid_rows,
@@ -269,7 +277,7 @@ def sample_images(epoch, image_grid_rows=2, image_grid_columns=5):
     for i in range(image_grid_rows):
         for j in range(image_grid_columns):
             # Output a grid of images
-            axs[i, j].imshow(gen_imgs[cnt, :, :, 0], cmap='gray')
+            axs[i, j].imshow(gen_imgs[cnt, :, :, 0])
             axs[i, j].axis('off')
             axs[i, j].set_title("Digit: %d" % labels[cnt])
             cnt += 1
@@ -280,7 +288,7 @@ def sample_images(epoch, image_grid_rows=2, image_grid_columns=5):
 
 # Set hyperparameters
 iterations = 12000
-batch_size = 32
+batch_size = 1024
 sample_interval = 1000
 
 # Train the CGAN for the specified number of iterations
@@ -300,7 +308,6 @@ plt.ylabel("Accuracy (%)")
 plt.legend()
 plt.savefig(f'exec_cgan/accuracy.png')
 plt.close()
-
 
 plt.figure(figsize=(15, 5))
 plt.plot(epoch, [x[0] for x in losses], label="Discriminator loss")
