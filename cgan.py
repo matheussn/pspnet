@@ -84,28 +84,29 @@ def build_discriminator(img_shape):
     model = Sequential(name="discriminator")
 
     # Convolutional layer, from 64x64x3 into 32x32x64 tensor
-    model.add(Conv2D(64, kernel_size=3, strides=2, input_shape=(img_shape[0], img_shape[1], img_shape[2] + 3),
+    model.add(Conv2D(64, kernel_size=3, strides=2, activation="softmax",
+                     input_shape=(img_shape[0], img_shape[1], img_shape[2] + 3),
                      padding='same'))
     model.add(LeakyReLU(alpha=0.01))
 
     # Convolutional layer, from 32x32x64 into 16x16x64 tensor
-    model.add(Conv2D(64, kernel_size=3, strides=2, input_shape=img_shape, padding='same'))
+    model.add(Conv2D(64, kernel_size=3, activation="softmax", strides=2, input_shape=img_shape, padding='same'))
     # model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.01))
 
     # Convolutional layer, from 16x16x64 tensor into 8x8x128 tensor
-    model.add(Conv2D(128, kernel_size=3, strides=2, input_shape=img_shape, padding='same'))
+    model.add(Conv2D(128, kernel_size=3, activation="softmax", strides=2, input_shape=img_shape, padding='same'))
     # model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.01))
 
     # Convolutional layer, from 8x8x64 tensor into 4x4x128 tensor
-    model.add(Conv2D(128, kernel_size=3, strides=2, input_shape=img_shape, padding='same'))
+    model.add(Conv2D(128, kernel_size=3, activation="softmax", strides=2, input_shape=img_shape, padding='same'))
     # model.add(BatchNormalization())
     model.add(LeakyReLU(alpha=0.01))
 
     # Output layer with sigmoid activation
     model.add(Flatten())
-    model.add(Dense(1, activation='sigmoid'))
+    model.add(Dense(1, activation='softmax'))
 
     return model
 
