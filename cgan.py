@@ -286,7 +286,7 @@ def sample_images(epoch, image_grid_rows=2, image_grid_columns=2):
 
 # Set hyperparameters
 iterations = 12000
-batch_size = 1024
+batch_size = 128
 sample_interval = 1000
 
 # Train the CGAN for the specified number of iterations
