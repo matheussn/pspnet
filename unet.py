@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from matplotlib import pyplot
 from matplotlib.colors import NoNorm
@@ -8,6 +9,7 @@ from tensorflow.python.keras.optimizer_v2.adam import Adam
 
 from utils.dataset import load_real_samples
 from utils.gpu import set_gpu_limit
+import tensorflow as tf
 
 
 def u_net(pretrained_weights=None, input_size=(256, 256, 1)):
@@ -71,13 +73,20 @@ def save_plot(examples, epoch, n=7):
     examples = (examples + 1) / 2.0
     # plot images
     for i in range(n):
-        pyplot.imshow(examples[i], cmap='gray', norm=NoNorm())
+        predict_img = examples[i]
+        predict_img[predict_img > 0.5] = 1
+        predict_img[predict_img <= 0.5] = 0
+        pyplot.imshow(predict_img, cmap='gray', norm=NoNorm())
         filename = f'generated_plot_e%03d.png' % i
         pyplot.savefig(filename)
     pyplot.close()
 
 
 if __name__ == '__main__':
+    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+    physical_devices = tf.config.experimental.list_physical_devices('CPU')
+    print("Num GPUs Available", len(physical_devices))
+    # tf.config.experimental.set_memory_growth(physical_devices[0], True)
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', dest='dataset_path', help='path of dataset', default=False)
     parser.add_argument('-tfds', dest='dataset_name', help='Name of tensorflow dataset', default=False)
@@ -86,7 +95,7 @@ if __name__ == '__main__':
 
     dataset = load_real_samples(args.dataset_path, target_size=(256, 256))
 
-    model = u_net(input_size=(256, 256, 3), pretrained_weights='/home/neto/Documents/results/exec_98118072-15c8-11ec-a7d0-244bfed08373/discriminator_model_020.h5')
+    model = u_net(input_size=(256, 256, 3))
     img = model(dataset)
 
     save_plot(img, 10, n=4)
