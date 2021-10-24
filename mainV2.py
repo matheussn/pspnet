@@ -311,159 +311,143 @@ def train_noise_label_v2(epochs, batch_size, sample_interval, img, labels, gener
 
             # Output sample of generated images
             sample_images(generator, epoch, base_dir)
+    return accuracies, losses
 
 
-def run_basic_cgan():
+def run_basic_cgan(base_dir):
     keras.backend.clear_session()
-    BASE_DIR = f"run_basic_cgan"
 
-    os.mkdir(BASE_DIR)
     classes = {'healthy': 0, 'mild': 1, 'moderate': 2, 'severe': 3}
     img, labels = load_all_imgs('./dataset/all_class/', img_shape[:2], classes, 1)
-    generator = build_cgan_generator(z_dim, num_class, BASE_DIR)
+    generator = build_cgan_generator(z_dim, num_class, base_dir)
 
-    discriminator = build_cgan_discriminator(img_shape, num_class, BASE_DIR)
+    discriminator = build_cgan_discriminator(img_shape, num_class, base_dir)
     discriminator.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=4e-4), metrics=['accuracy'])
     discriminator.trainable = False
 
     cgan = build_cgan(generator, discriminator, z_dim)
     cgan.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=1e-4))
-    train(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan, BASE_DIR)
+    return train(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan, base_dir)
 
 
-def run_basic_cgan_with_label_smoothing():
+def run_basic_cgan_with_label_smoothing(base_dir):
     keras.backend.clear_session()
-    BASE_DIR = f"run_basic_cgan_with_label_smoothing"
 
-    os.mkdir(BASE_DIR)
     classes = {'healthy': 0, 'mild': 1, 'moderate': 2, 'severe': 3}
     img, labels = load_all_imgs('./dataset/all_class/', img_shape[:2], classes, 1)
-    generator = build_cgan_generator(z_dim, num_class, BASE_DIR)
+    generator = build_cgan_generator(z_dim, num_class, base_dir)
 
-    discriminator = build_cgan_discriminator(img_shape, num_class, BASE_DIR)
+    discriminator = build_cgan_discriminator(img_shape, num_class, base_dir)
     discriminator.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=4e-4), metrics=['accuracy'])
     discriminator.trainable = False
 
     cgan = build_cgan(generator, discriminator, z_dim)
     cgan.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=1e-4))
-    train_noise_label_v2(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan, BASE_DIR)
+    return train_noise_label_v2(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan,
+                                base_dir)
 
 
-def run_basic_cgan_with_label_smoothing_v2():
+def run_basic_cgan_with_label_smoothing_v2(base_dir):
     from tensorflow.keras.losses import BinaryCrossentropy
     keras.backend.clear_session()
-    BASE_DIR = f"run_basic_cgan_with_label_smoothing_v2"
 
-    os.mkdir(BASE_DIR)
     classes = {'healthy': 0, 'mild': 1, 'moderate': 2, 'severe': 3}
     img, labels = load_all_imgs('./dataset/all_class/', img_shape[:2], classes, 1)
-    generator = build_cgan_generator(z_dim, num_class, BASE_DIR)
+    generator = build_cgan_generator(z_dim, num_class, base_dir)
 
-    discriminator = build_cgan_discriminator(img_shape, num_class, BASE_DIR)
+    discriminator = build_cgan_discriminator(img_shape, num_class, base_dir)
     discriminator.compile(loss=BinaryCrossentropy(label_smoothing=.1), optimizer=Adam(learning_rate=4e-4),
                           metrics=['accuracy'])
     discriminator.trainable = False
 
     cgan = build_cgan(generator, discriminator, z_dim)
     cgan.compile(loss=BinaryCrossentropy(label_smoothing=.1), optimizer=Adam(learning_rate=1e-4))
-    train_noise_label_v2(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan, BASE_DIR)
+    return train_noise_label_v2(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan,
+                                base_dir)
 
 
-def run_basic_cgan_v2():
+def run_basic_cgan_v2(base_dir):
     from tensorflow.keras.losses import BinaryCrossentropy
     keras.backend.clear_session()
-    BASE_DIR = f"run_basic_cgan_v2"
 
-    os.mkdir(BASE_DIR)
     classes = {'healthy': 0, 'mild': 1, 'moderate': 2, 'severe': 3}
     img, labels = load_all_imgs('./dataset/all_class/', img_shape[:2], classes, 1)
-    generator = build_cgan_generator(z_dim, num_class, BASE_DIR)
+    generator = build_cgan_generator(z_dim, num_class, base_dir)
 
-    discriminator = build_cgan_discriminator(img_shape, num_class, BASE_DIR)
+    discriminator = build_cgan_discriminator(img_shape, num_class, base_dir)
     discriminator.compile(loss=BinaryCrossentropy(label_smoothing=.1), optimizer=Adam(learning_rate=4e-4),
                           metrics=['accuracy'])
     discriminator.trainable = False
 
     cgan = build_cgan(generator, discriminator, z_dim)
     cgan.compile(loss=BinaryCrossentropy(label_smoothing=.1), optimizer=Adam(learning_rate=1e-4))
-    train(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan, BASE_DIR)
+    return train(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan, base_dir)
 
 
-def run_basic_cgan_more_lr():
+def run_basic_cgan_more_lr(base_dir):
     from tensorflow.keras.losses import BinaryCrossentropy
     keras.backend.clear_session()
-    BASE_DIR = f"run_basic_cgan_more_lr"
-
-    os.mkdir(BASE_DIR)
     classes = {'healthy': 0, 'mild': 1, 'moderate': 2, 'severe': 3}
     img, labels = load_all_imgs('./dataset/all_class/', img_shape[:2], classes, 1)
-    generator = build_cgan_generator(z_dim, num_class, BASE_DIR)
+    generator = build_cgan_generator(z_dim, num_class, base_dir)
 
-    discriminator = build_cgan_discriminator(img_shape, num_class, BASE_DIR)
+    discriminator = build_cgan_discriminator(img_shape, num_class, base_dir)
     discriminator.compile(loss=BinaryCrossentropy(label_smoothing=.1), optimizer=Adam(learning_rate=5e-4),
                           metrics=['accuracy'])
     discriminator.trainable = False
 
     cgan = build_cgan(generator, discriminator, z_dim)
     cgan.compile(loss=BinaryCrossentropy(label_smoothing=.1), optimizer=Adam(learning_rate=5e-5))
-    train(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan, BASE_DIR)
+    return train(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan, base_dir)
 
 
-def run_basic_cgan_more_lr_v2():
+def run_basic_cgan_more_lr_v2(base_dir):
     keras.backend.clear_session()
-    BASE_DIR = f"run_basic_cgan_more_lr_v2"
-
-    os.mkdir(BASE_DIR)
     classes = {'healthy': 0, 'mild': 1, 'moderate': 2, 'severe': 3}
     img, labels = load_all_imgs('./dataset/all_class/', img_shape[:2], classes, 1)
-    generator = build_cgan_generator(z_dim, num_class, BASE_DIR)
+    generator = build_cgan_generator(z_dim, num_class, base_dir)
 
-    discriminator = build_cgan_discriminator(img_shape, num_class, BASE_DIR)
+    discriminator = build_cgan_discriminator(img_shape, num_class, base_dir)
     discriminator.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=5e-4), metrics=['accuracy'])
     discriminator.trainable = False
 
     cgan = build_cgan(generator, discriminator, z_dim)
     cgan.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=5e-5))
-    train(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan, BASE_DIR)
+    return train(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan, base_dir)
 
 
-def run_basic_cgan_binary_accuracy():
+def run_basic_cgan_binary_accuracy(base_dir):
     from tensorflow.keras.metrics import BinaryAccuracy
     keras.backend.clear_session()
-    BASE_DIR = f"run_basic_cgan_binary_accuracy"
 
-    os.mkdir(BASE_DIR)
     classes = {'healthy': 0, 'mild': 1, 'moderate': 2, 'severe': 3}
     img, labels = load_all_imgs('./dataset/all_class/', img_shape[:2], classes, 1)
-    generator = build_cgan_generator(z_dim, num_class, BASE_DIR)
+    generator = build_cgan_generator(z_dim, num_class, base_dir)
 
-    discriminator = build_cgan_discriminator(img_shape, num_class, BASE_DIR)
+    discriminator = build_cgan_discriminator(img_shape, num_class, base_dir)
     discriminator.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=5e-4), metrics=[BinaryAccuracy()])
     discriminator.trainable = False
 
     cgan = build_cgan(generator, discriminator, z_dim)
     cgan.compile(loss='binary_crossentropy', optimizer=Adam(learning_rate=5e-5))
-    train(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan, BASE_DIR)
+    return train(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan, base_dir)
 
 
-def run_basic_cgan_binary_accuracy_v2():
+def run_basic_cgan_binary_accuracy_v2(base_dir):
     from tensorflow.keras.metrics import BinaryAccuracy
     keras.backend.clear_session()
-    BASE_DIR = f"run_basic_cgan_binary_accuracy_v2"
-
-    os.mkdir(BASE_DIR)
     classes = {'healthy': 0, 'mild': 1, 'moderate': 2, 'severe': 3}
     img, labels = load_all_imgs('./dataset/all_class/', img_shape[:2], classes, 1)
-    generator = build_cgan_generator(z_dim, num_class, BASE_DIR)
+    generator = build_cgan_generator(z_dim, num_class, base_dir)
 
-    discriminator = build_cgan_discriminator(img_shape, num_class, BASE_DIR)
+    discriminator = build_cgan_discriminator(img_shape, num_class, base_dir)
     discriminator.compile(loss='mse', optimizer='sgd',
                           metrics=[BinaryAccuracy()])
     discriminator.trainable = False
 
     cgan = build_cgan(generator, discriminator, z_dim)
     cgan.compile(loss='mse', optimizer='sgd')
-    train(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan, BASE_DIR)
+    return train(epochs, batch_size, sample_interval, img, labels, generator, discriminator, cgan, base_dir)
 
 
 if __name__ == '__main__':
@@ -471,22 +455,67 @@ if __name__ == '__main__':
 
     parser.add_argument('-type', dest='type', required=True)
     args = parser.parse_args()
-    print("ué1", args.type)
+
+    accuracies = []
+    losses = []
+    BASE_DIR = ""
     if int(args.type) == 0:
-        print("ué")
-        run_basic_cgan()
+        BASE_DIR = f"run_basic_cgan"
+        os.mkdir(BASE_DIR)
+        accuracies, loss = run_basic_cgan(BASE_DIR)
     if int(args.type) == 1:
-        print("run_basic_cgan_with_label_smoothing")
-        run_basic_cgan_with_label_smoothing()
+        BASE_DIR = f"run_basic_cgan_with_label_smoothing"
+        os.mkdir(BASE_DIR)
+        accuracies, loss = run_basic_cgan_with_label_smoothing(BASE_DIR)
     if int(args.type) == 2:
-        run_basic_cgan_with_label_smoothing_v2()
+        BASE_DIR = f"run_basic_cgan_with_label_smoothing_v2"
+        os.mkdir(BASE_DIR)
+        accuracies, loss = run_basic_cgan_with_label_smoothing_v2(BASE_DIR)
     if int(args.type) == 3:
-        run_basic_cgan_v2()
+        BASE_DIR = f"run_basic_cgan_v2"
+        os.mkdir(BASE_DIR)
+        accuracies, loss = run_basic_cgan_v2(BASE_DIR)
     if int(args.type) == 4:
-        run_basic_cgan_more_lr()
+        BASE_DIR = f"run_basic_cgan_more_lr"
+        os.mkdir(BASE_DIR)
+        accuracies, loss = run_basic_cgan_more_lr(BASE_DIR)
     if int(args.type) == 5:
-        run_basic_cgan_more_lr_v2()
+        BASE_DIR = f"run_basic_cgan_more_lr_v2"
+        os.mkdir(BASE_DIR)
+        accuracies, loss = run_basic_cgan_more_lr_v2(BASE_DIR)
     if int(args.type) == 6:
-        run_basic_cgan_binary_accuracy()
+        BASE_DIR = f"run_basic_cgan_binary_accuracy"
+        os.mkdir(BASE_DIR)
+        accuracies, loss = run_basic_cgan_binary_accuracy(BASE_DIR)
     if int(args.type) == 7:
-        run_basic_cgan_binary_accuracy_v2()
+        BASE_DIR = f"run_basic_cgan_binary_accuracy_v2"
+        os.mkdir(BASE_DIR)
+        accuracies, loss = run_basic_cgan_binary_accuracy_v2(BASE_DIR)
+
+    epoch = [x for x in range(0, epochs, 100)]
+
+    plt.figure(figsize=(15, 5))
+    plt.plot(epoch, accuracies, label="Discriminator accuracy")
+
+    plt.xticks(epoch, rotation=90)
+    plt.yticks(range(0, 100, 5))
+
+    plt.title("Discriminator Accuracy")
+    plt.xlabel("Iteration")
+    plt.ylabel("Accuracy (%)")
+    plt.legend()
+    plt.savefig(f'./{BASE_DIR}/accuracy.png')
+    plt.close()
+
+    plt.figure(figsize=(15, 5))
+    plt.plot(epoch, [x[0] for x in losses], label="Discriminator loss")
+    plt.plot(epoch, [x[1] for x in losses], label="Generator loss")
+
+    # plt.xticks(self.epoch, rotation=90)
+
+    plt.title("Training Loss")
+    plt.xlabel("Iteration")
+    plt.ylabel("Loss")
+    plt.legend()
+    plt.savefig(f'./{BASE_DIR}/losses.png')
+    plt.close()
