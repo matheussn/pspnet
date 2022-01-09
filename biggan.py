@@ -7,8 +7,8 @@ _base_ = [
 # you must set `samples_per_gpu`
 # data = dict(samples_per_gpu=25, workers_per_gpu=8)
 data = dict(
-    samples_per_gpu=25,
-    workers_per_gpu=8,
+    samples_per_gpu=4,
+    workers_per_gpu=4,
     train=dict(data_prefix='data/dysplasia'),
     val=dict(data_prefix='data/dysplasia'))
 
