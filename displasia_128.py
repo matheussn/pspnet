@@ -1,4 +1,4 @@
-dataset_type = 'DYSPLASIA'
+dataset_type = 'mmcls.ImageNet'
 
 # different from mmcls, we adopt the setting used in BigGAN
 # Note that the pipelines below are from MMClassification. Importantly, the
@@ -37,9 +37,9 @@ data = dict(
         times=500,
         dataset=dict(
             type=dataset_type,
-            data_prefix='data/cifar10',
+            data_prefix='data/dysplasia',
             pipeline=train_pipeline)),
     val=dict(
-        type=dataset_type, data_prefix='data/cifar10', pipeline=test_pipeline),
+        type=dataset_type, data_prefix='data/dysplasia', pipeline=test_pipeline),
     test=dict(
-        type=dataset_type, data_prefix='data/cifar10', pipeline=test_pipeline))
+        type=dataset_type, data_prefix='data/dysplasia', pipeline=test_pipeline))

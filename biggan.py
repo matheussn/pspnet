@@ -1,7 +1,7 @@
 _base_ = [
     'mmgeneration/configs/_base_/models/biggan/biggan_128x128.py',
     './displasia_128.py', 
-    '../_base_/default_runtime.py'
+    'mmgeneration/configs/_base_/default_runtime.py'
 ]
 
 # define dataset
