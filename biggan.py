@@ -1,6 +1,7 @@
 _base_ = [
-    '../_base_/models/biggan/biggan_128x128.py',
-    '../_base_/datasets/imagenet_noaug_256.py', '../_base_/default_runtime.py'
+    'mmgeneration/configs/_base_/models/biggan/biggan_128x128.py',
+    './displasia_128.py', 
+    '../_base_/default_runtime.py'
 ]
 
 # define dataset
@@ -14,7 +15,7 @@ data = dict(
 
 # adjust running config
 lr_config = None
-checkpoint_config = dict(interval=500, by_epoch=False, max_keep_ckpts=20)
+checkpoint_config = dict(interval=1000, by_epoch=False, max_keep_ckpts=20)
 custom_hooks = [
     dict(
         type='VisualizeUnconditionalSamples',
