@@ -1,3 +1,5 @@
+# Este modelo foi baseado no arquivo pspnet_r50-d8_512x1024_40k_cityscapes.py
+
 norm_cfg = dict(type='BN', requires_grad=True)
 model = dict(
     type='EncoderDecoder',

@@ -1,3 +1,5 @@
+# Este modelo foi baseado no arquivo pspnet_unet_s5-d16_256x256_40k_hrf.py
+
 _base_ = [
     '../dataset/dysplasia_dataset.py', '../mmsegmentation/configs/_base_/default_runtime.py',
     '../mmsegmentation/configs/_base_/schedules/schedule_40k.py'
