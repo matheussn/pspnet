@@ -52,5 +52,9 @@ model = dict(
             type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
     # model training and testing settings
     train_cfg=dict(),
-    test_cfg=dict(mode='slide', crop_size=(256,256), stride=(256,256)))
-evaluation = dict(metric='mDice')
+    test_cfg=dict(mode='slide', crop_size=(256, 256), stride=(256, 256)))
+log_config = dict(interval=1, hooks=[dict(type='TextLoggerHook', by_epoch=True)])
+lr_config = dict(policy='poly', power=0.9, min_lr=0.0001, by_epoch=True)
+runner = dict(type='EpochBasedRunner', max_epochs=20)
+checkpoint_config = dict(by_epoch=False, interval=10)
+evaluation = dict(interval=10, metric='mDice', pre_eval=True)
