@@ -2,7 +2,6 @@
 
 _base_ = [
     '../dataset/dysplasia_dataset.py', '../mmsegmentation/configs/_base_/default_runtime.py',
-    '../mmsegmentation/configs/_base_/schedules/schedule_40k.py'
 ]
 norm_cfg = dict(type='SyncBN', requires_grad=True)
 model = dict(
@@ -53,8 +52,20 @@ model = dict(
     # model training and testing settings
     train_cfg=dict(),
     test_cfg=dict(mode='slide', crop_size=(256, 256), stride=(256, 256)))
+
 log_config = dict(interval=1, hooks=[dict(type='TextLoggerHook', by_epoch=True)])
+dist_params = dict(backend='nccl')
+log_level = 'INFO'
+load_from = None
+resume_from = None
+workflow = [('train', 1)]
+cudnn_benchmark = True
+optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0005)
+optimizer_config = dict()
 lr_config = dict(policy='poly', power=0.9, min_lr=0.0001, by_epoch=True)
 runner = dict(type='EpochBasedRunner', max_epochs=20)
-checkpoint_config = dict(by_epoch=False, interval=10)
+checkpoint_config = dict(by_epoch=True, interval=10)
 evaluation = dict(interval=10, metric='mDice', pre_eval=True)
+work_dir = './work_dirs/tutorial'
+seed = 0
+gpu_ids = range(0, 1)
