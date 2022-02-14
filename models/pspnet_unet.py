@@ -3,7 +3,7 @@
 _base_ = [
     '../dataset/dysplasia_dataset.py', '../mmsegmentation/configs/_base_/default_runtime.py',
 ]
-norm_cfg = dict(type='SyncBN', requires_grad=True)
+norm_cfg = dict(type='BN', requires_grad=True)
 model = dict(
     type='EncoderDecoder',
     pretrained=None,
