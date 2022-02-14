@@ -154,8 +154,8 @@ data = dict(
                 ])
         ],
         split='splits/val.txt'))
-log_config = dict(
-    interval=100, hooks=[dict(type='TextLoggerHook', by_epoch=False)])
+log_config = dict(interval=12, hooks=[dict(type='TextLoggerHook', by_epoch=True)])
+evaluation = dict(metric='mDice', pre_eval=True)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 load_from = None
@@ -164,10 +164,9 @@ workflow = [('train', 1)]
 cudnn_benchmark = True
 optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0005)
 optimizer_config = dict()
-lr_config = dict(policy='poly', power=0.9, min_lr=0.0001, by_epoch=False)
-runner = dict(type='IterBasedRunner', max_iters=2000)
-checkpoint_config = dict(by_epoch=False, interval=200)
-evaluation = dict(interval=200, metric='mIoU', pre_eval=True)
-work_dir = './work_dirs/tutorial'
+lr_config = dict(policy='poly', power=0.9, min_lr=0.0001, by_epoch=True)
+runner = dict(type='EpochBasedRunner', max_epochs=20)
+checkpoint_config = dict(by_epoch=True, interval=10)
+work_dir = './work_dirs/psp'
 seed = 0
 gpu_ids = range(0, 1)

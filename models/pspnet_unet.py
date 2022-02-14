@@ -66,6 +66,6 @@ optimizer_config = dict()
 lr_config = dict(policy='poly', power=0.9, min_lr=0.0001, by_epoch=True)
 runner = dict(type='EpochBasedRunner', max_epochs=20)
 checkpoint_config = dict(by_epoch=True, interval=10)
-work_dir = './work_dirs/tutorial'
+work_dir = './work_dirs/unet'
 seed = 0
 gpu_ids = range(0, 1)
