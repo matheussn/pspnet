@@ -1,5 +1,20 @@
 clc; clear all;
-dsType = ["nopreproc_nadam", "nopreproc_nadamPost"];
+dsType = [
+    "pspnet_100",
+    "pspnet_100_adam",
+    "pspnet_150",
+    "pspnet_150_adam",
+    "pspnet_50",
+    "pspnet_50_adam",
+    "psp_resnest_100_adam",
+    "psp_resnest_50",
+    "psp_unet_100",
+    "psp_unet_100_adam",
+    "psp_unet_150",
+    "psp_unet_150_adam",
+    "psp_unet_50",
+    "psp_unet_50_adam"
+    ];
 target = ["healthy", "mild", "moderate", "severe"]; % Chose a folder containing images of one class.
 
 allFeat = [0;0;0;0;0;0];
