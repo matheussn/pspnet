@@ -28,7 +28,7 @@ for currDS = 1 : length(dsType) % iterating over different result folders
             [maskIm, segInfo] = readimage(maskImds, currImage); % reads one result image
             [filepath,name,ext] = fileparts(segInfo.Filename);
 
-            orName = convertStringsToChars(strcat('dataset/', target(currTG), '/', name, '.tif')); % reads the groudtruth image with the same name as the mask
+            orName = convertStringsToChars(strcat(pwd, '/dataset/', target(currTG), '/', name, '.tif')); % reads the groudtruth image with the same name as the mask
             orIm = imread(orName);
 
             fprintf(1, '\t\tNow reading %d of %d\n', currImage, length(maskImds.Files));
@@ -39,12 +39,14 @@ for currDS = 1 : length(dsType) % iterating over different result folders
             finalIm(:,:,2) = orIm(:,:,2);
             finalIm(:,:,3) = orIm(:,:,3);
             finalIm(finalMask<200) = 0;
+            302, 36
+            148, 137
 
             [finalMaskPost, finalImPost] = postProc(finalMask, orIm);
 
             %%%%% SAVING FILES WITHOUT POST-PROCESSING %%%%%
-            pathFinalMaskName = convertStringsToChars(strcat('segmentation_results/', dsType(currDS), '/pre/masks/', target(currTG), '/'));
-            pathFinalImName = convertStringsToChars(strcat('segmentation_results/', dsType(currDS), '/pre/segmentation/', target(currTG), '/'));
+            pathFinalMaskName = convertStringsToChars(strcat(pwd, '/segmentation_results/', dsType(currDS), '/pre/masks/', target(currTG), '/'));
+            pathFinalImName = convertStringsToChars(strcat(pwd, '/segmentation_results/', dsType(currDS), '/pre/segmentation/', target(currTG), '/'));
             if ~exist(pathFinalMaskName, 'dir')
                 mkdir(pathFinalMaskName);
                 mkdir(pathFinalImName);
@@ -57,8 +59,8 @@ for currDS = 1 : length(dsType) % iterating over different result folders
             imwrite(finalIm, pathFinalImName);
 
             %%%%% SAVING POST-PROCESSED FILES %%%%%
-            pathFinalMaskPostName = convertStringsToChars(strcat('segmentation_results/', dsType(currDS), '/post/masks/', target(currTG), '/'));
-            pathFinalImPostName = convertStringsToChars(strcat('segmentation_results/', dsType(currDS), '/post/segmentation/', target(currTG), '/'));
+            pathFinalMaskPostName = convertStringsToChars(strcat(pwd,'/segmentation_results/', dsType(currDS), '/post/masks/', target(currTG), '/'));
+            pathFinalImPostName = convertStringsToChars(strcat(pwd, '/segmentation_results/', dsType(currDS), '/post/segmentation/', target(currTG), '/'));
             if ~exist(pathFinalMaskPostName, 'dir')
                 mkdir(pathFinalMaskPostName);
                 mkdir(pathFinalImPostName);
