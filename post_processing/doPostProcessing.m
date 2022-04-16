@@ -39,8 +39,6 @@ for currDS = 1 : length(dsType) % iterating over different result folders
             finalIm(:,:,2) = orIm(:,:,2);
             finalIm(:,:,3) = orIm(:,:,3);
             finalIm(finalMask<200) = 0;
-            302, 36
-            148, 137
 
             [finalMaskPost, finalImPost] = postProc(finalMask, orIm);
 
