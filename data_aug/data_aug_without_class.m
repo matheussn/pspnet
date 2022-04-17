@@ -26,8 +26,8 @@ for currImage = 1 : length(images.Files)
     imwrite(ground, strcat("./Aug/annotations/", img_name, ".tif"))
 
     fprintf(1, '\t\tNow reading %d of %d\n', currImage, length(images.Files));
-    original_center_img = center_crop(image, input_width, input_height, 0, 0);
-    original_center_ground = center_crop(ground, input_width, input_height, 0, 0);
+    original_center_img = center_crop(image, input_width, input_height, 0, 0, false);
+    original_center_ground = center_crop(ground, input_width, input_height, 0, 0, true);
 
     imwrite(original_center_img, strcat("./Aug/images/center_", img_name, ".tif"))
     imwrite(original_center_ground, strcat("./Aug/annotations/center_", img_name, ".tif"))
@@ -44,11 +44,11 @@ for currImage = 1 : length(images.Files)
     imwrite(img_noise_salt_and_pepper, strcat("./Aug/images/salt_and_pepper_", img_name, ".tif"))
     imwrite(original_center_ground, strcat("./Aug/annotations/salt_and_pepper_", img_name, ".tif"))
 
-    img_resized = imresize(image, [input_width input_height]);
-    ground_resized = imresize(ground, [input_width input_height]);
+    %img_resized = imresize(image, [input_width input_height]);
+    %ground_resized = imresize(ground, [input_width input_height]);
 
-    imwrite(img_resized, strcat("./Aug/images/resized_", img_name, ".tif"))
-    imwrite(ground_resized, strcat("./Aug/annotations/resized_", img_name, ".tif"))
+    %imwrite(img_resized, strcat("./Aug/images/resized_", img_name, ".tif"))
+    %imwrite(ground_resized, strcat("./Aug/annotations/resized_", img_name, ".tif"))
 
     img_rotated = imrotate(original_center_img, 5);
     ground_rotated = imrotate(original_center_ground, 5);
@@ -57,11 +57,15 @@ for currImage = 1 : length(images.Files)
     imwrite(ground_rotated, strcat("./Aug/annotations/rotated_", img_name, ".tif"))
 end
 
-function [center_img] = center_crop(img, width, height, shiftwidth, shiftheight )
+function [center_img] = center_crop(img, width, height, shiftwidth, shiftheight, isann)
     img_size = size(img);
     heightbot = fix( (img_size(1)-height)/2 + shiftheight);
     heighttop = heightbot+height;
     widthleft = fix((img_size(2)-width)/2 + shiftwidth);
     widthright = widthleft+width;
-    center_img = img(heightbot:heighttop, widthleft:widthright,1:3);
+    if isann
+        center_img = img(heightbot:heighttop, widthleft:widthright, :);
+    else
+        center_img = img(heightbot:heighttop, widthleft:widthright,1:3);
+    end
 end
